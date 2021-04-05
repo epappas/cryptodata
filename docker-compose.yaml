@@ -1,0 +1,196 @@
+version: '3.8'
+
+x-meltano-common: 
+  &meltano-common
+  volumes:
+    - meltano_elt_logs_data:/project/.meltano/logs/elt
+  environment:
+      - MELTANO_DATABASE_URI=postgresql+psycopg2://airflow:airflow@postgres/db_meltano
+      # - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/db_airflow
+      # - MELTANO_DATABASE_URI=postgres://airflow:airflow@postgres/db_meltano
+      # - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgres://airflow:airflow@postgres/db_airflow
+      # - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+  depends_on:
+    postgres:
+      condition: service_healthy
+
+x-airflow-common:
+  &airflow-common
+  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.0.1}
+  environment:
+    &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+    AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/db_airflow
+    AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/db_airflow
+    AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
+    AIRFLOW__CORE__FERNET_KEY: ''
+    AIRFLOW__CORE__ENABLE_XCOM_PICKLING: 'true'
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+    MELTANO_PROJECT_ROOT: '/opt/meltano'
+    # AIRFLOW__CORE__LOAD_EXAMPLES: 'true'
+  volumes:
+    - ./meltano:/opt/meltano
+    - ./airflow/dags:/opt/airflow/dags
+    - ./airflow/logs:/opt/airflow/logs
+    - ./airflow/plugins:/opt/airflow/plugins
+    - /var/run/docker.sock:/var/run/docker.sock:rw
+    # - /usr/local/bin/docker:/bin/docker:ro
+  user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-50000}"
+  depends_on:
+    redis:
+      condition: service_healthy
+    postgres:
+      condition: service_healthy
+
+volumes:
+  postgres-db-volume:
+    driver: local
+  meltano_elt_logs_data:
+    driver: local
+
+networks:
+  meltano:
+  airflow:
+
+services:
+  meltano:
+    build:
+      context: ./meltano
+      dockerfile: Dockerfile
+    working_dir: /project
+    volumes:
+      - ./meltano:/project
+    <<: *meltano-common
+    networks:
+      - meltano
+      - airflow
+
+  meltano-ui:
+    image: cryptodata_meltano:latest
+    <<: *meltano-common
+    command: 'ui'
+    ports:
+      - '5000:5000'
+      - '5010:5010'
+    networks:
+      - meltano
+    restart: unless-stopped
+  
+  airflow-webserver:
+    <<: *airflow-common
+    command: webserver
+    ports:
+      - 8080:8080
+    networks:
+      - airflow
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: always
+
+  airflow-scheduler:
+    <<: *airflow-common
+    networks:
+      - airflow
+    command: scheduler
+    restart: always
+
+  airflow-worker:
+    <<: *airflow-common
+    networks:
+      - airflow
+    command: celery worker
+    restart: always
+
+  airflow-init:
+    <<: *airflow-common
+    command: version
+    environment:
+      <<: *airflow-common-env
+      _AIRFLOW_DB_UPGRADE: 'true'
+      _AIRFLOW_WWW_USER_CREATE: 'true'
+      _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-airflow}
+      _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
+    networks:
+      - meltano
+      - airflow
+
+  flower:
+    <<: *airflow-common
+    command: celery flower
+    ports:
+      - 5555:5555
+    networks:
+      - airflow
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:5555/"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: always
+
+  # meltano-airflow-scheduler:
+  #   image: cryptodata_meltano:latest
+  #   <<: *meltano-common
+  #   command: -v --log-level=debug invoke airflow scheduler
+  #   expose:
+  #     - 8793
+  #   networks:
+  #     - meltano
+  #     - airflow
+  #   restart: unless-stopped
+
+  # meltano-airflow-webserver:
+  #   image: cryptodata_meltano:latest
+  #   <<: *meltano-common
+  #   command: -v --log-level=debug invoke airflow webserver
+  #   expose:
+  #     - 8080
+  #   ports:
+  #     - 8080:8080
+  #   networks:
+  #     - meltano
+  #     - airflow
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
+  #     interval: 30s
+  #     timeout: 30s
+  #     retries: 3
+
+  postgres:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+    expose:
+      - 5432
+    networks:
+      - meltano
+      - airflow
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 5s
+      retries: 5
+    restart: always
+  
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    networks:
+      - airflow
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 30s
+      retries: 50
+    restart: always

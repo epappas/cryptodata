@@ -1,0 +1,9 @@
+version: 1
+send_anonymous_usage_stats: false
+project_id: 3215d88a-d817-4021-9e07-8bf5b498e305
+plugins:
+  extractors:
+  - name: tap-postgres
+    namespace: tap_postgres
+    pip_url: tap-postgres
+    executable: tap-postgres

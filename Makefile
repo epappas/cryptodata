@@ -6,7 +6,7 @@ CWD := $(shell pwd)
 PYTHON := $(shell which python3)
 PIP := $(PYTHON) -m pip
 
-all: build install build airflow_init
+all: build airflow_init
 
 restart: stop run
 
@@ -38,3 +38,4 @@ virtualenv:
 
 dev_env:
 	$(PIP) install -r requirements.txt
+

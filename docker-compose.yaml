@@ -5,6 +5,12 @@ x-meltano-common:
   volumes:
     - meltano_elt_logs_data:/project/.meltano/logs/elt
   environment:
+      - TARGET_POSTGRES_POSTGRES_HOST=postgres
+      - TARGET_POSTGRES_POSTGRES_PORT=5432
+      - TARGET_POSTGRES_POSTGRES_DATABASE=db_meltano
+      - TARGET_POSTGRES_POSTGRES_USERNAME=airflow
+      - TARGET_POSTGRES_POSTGRES_PASSWORD=airflow
+      # - TARGET_POSTGRES_POSTGRES_SCHEMA=public
       - MELTANO_DATABASE_URI=postgresql+psycopg2://airflow:airflow@postgres/db_meltano
       # - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/db_airflow
       # - MELTANO_DATABASE_URI=postgres://airflow:airflow@postgres/db_meltano
@@ -54,19 +60,19 @@ networks:
 
 services:
   meltano:
+    image: epappas/meltano:latest
+    container_name: meltano
     build:
       context: ./meltano
       dockerfile: Dockerfile
-    working_dir: /project
-    volumes:
-      - ./meltano:/project
     <<: *meltano-common
     networks:
       - meltano
       - airflow
 
   meltano-ui:
-    image: cryptodata_meltano:latest
+    image: epappas/meltano:latest
+    container_name: meltano_ui
     <<: *meltano-common
     command: 'ui'
     ports:
@@ -78,6 +84,7 @@ services:
   
   airflow-webserver:
     <<: *airflow-common
+    container_name: airflow_webserver
     command: webserver
     ports:
       - 8080:8080
@@ -92,6 +99,7 @@ services:
 
   airflow-scheduler:
     <<: *airflow-common
+    container_name: airflow_scheduler
     networks:
       - airflow
     command: scheduler
@@ -99,6 +107,7 @@ services:
 
   airflow-worker:
     <<: *airflow-common
+    container_name: airflow_worker
     networks:
       - airflow
     command: celery worker
@@ -106,6 +115,7 @@ services:
 
   airflow-init:
     <<: *airflow-common
+    container_name: airflow_init
     command: version
     environment:
       <<: *airflow-common-env
@@ -120,6 +130,7 @@ services:
   flower:
     <<: *airflow-common
     command: celery flower
+    container_name: celery_flower
     ports:
       - 5555:5555
     networks:
@@ -132,7 +143,7 @@ services:
     restart: always
 
   # meltano-airflow-scheduler:
-  #   image: cryptodata_meltano:latest
+  #   image: epappas/meltano:latest
   #   <<: *meltano-common
   #   command: -v --log-level=debug invoke airflow scheduler
   #   expose:
@@ -143,7 +154,7 @@ services:
   #   restart: unless-stopped
 
   # meltano-airflow-webserver:
-  #   image: cryptodata_meltano:latest
+  #   image: epappas/meltano:latest
   #   <<: *meltano-common
   #   command: -v --log-level=debug invoke airflow webserver
   #   expose:
@@ -161,9 +172,11 @@ services:
   #     retries: 3
 
   postgres:
+    image: epappas/postgres:latest
     build:
       context: ./db
       dockerfile: Dockerfile
+    container_name: postgres
     environment:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
@@ -173,6 +186,8 @@ services:
       - postgres-db-volume:/var/lib/postgresql/data
     expose:
       - 5432
+    ports:
+      - "5432:5432"
     networks:
       - meltano
       - airflow
@@ -184,6 +199,7 @@ services:
   
   redis:
     image: redis:latest
+    container_name: redis
     ports:
       - 6379:6379
     networks:

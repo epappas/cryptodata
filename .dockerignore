@@ -1,5 +1,3 @@
-/.git
-
-# .gitignore
-/.meltano
-/.env
+.git
+.gitignore
+.env

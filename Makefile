@@ -14,10 +14,10 @@ build:
 	@docker-compose build
 
 install:
-	$(CWD)/meltano.sh install
+	$(CWD)/docker/meltano.sh install
 
 airflow_init:
-	@docker-compose run airflow-init
+	$(CWD)/docker/airflow_init.sh
 
 run:
 	@docker-compose up -d

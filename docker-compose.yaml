@@ -42,6 +42,7 @@ x-airflow-common:
     - /var/run/docker.sock:/var/run/docker.sock:rw
     # - /usr/local/bin/docker:/bin/docker:ro
   user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-50000}"
+  privileged: true
   depends_on:
     redis:
       condition: service_healthy

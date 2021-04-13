@@ -22,7 +22,6 @@ x-meltano-common:
 
 x-airflow-common:
   &airflow-common
-  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.0.1}
   environment:
     &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
@@ -61,7 +60,7 @@ networks:
 
 services:
   meltano:
-    image: epappas/meltano:latest
+    image: ${MELTANO_IMAGE_NAME:-epappas/meltano:latest}
     container_name: meltano
     build:
       context: ./meltano
@@ -71,8 +70,19 @@ services:
       - meltano
       - airflow
 
+  airflow:
+    image: epappas/airflow:latest
+    container_name: airflow
+    build:
+      context: ./airflow
+      dockerfile: Dockerfile
+    <<: *airflow-common
+    networks:
+      - meltano
+      - airflow
+
   meltano-ui:
-    image: epappas/meltano:latest
+    image: ${MELTANO_IMAGE_NAME:-epappas/meltano:latest}
     container_name: meltano_ui
     <<: *meltano-common
     command: 'ui'
@@ -84,8 +94,9 @@ services:
     restart: unless-stopped
   
   airflow-webserver:
-    <<: *airflow-common
+    image: ${AIRFLOW_IMAGE_NAME:-epappas/airflow:latest}
     container_name: airflow_webserver
+    <<: *airflow-common
     command: webserver
     ports:
       - 8080:8080
@@ -99,6 +110,7 @@ services:
     restart: always
 
   airflow-scheduler:
+    image: ${AIRFLOW_IMAGE_NAME:-epappas/airflow:latest}
     <<: *airflow-common
     container_name: airflow_scheduler
     networks:
@@ -107,16 +119,18 @@ services:
     restart: always
 
   airflow-worker:
-    <<: *airflow-common
+    image: ${AIRFLOW_IMAGE_NAME:-epappas/airflow:latest}
     container_name: airflow_worker
+    <<: *airflow-common
     networks:
       - airflow
     command: celery worker
     restart: always
 
   airflow-init:
-    <<: *airflow-common
+    image: ${AIRFLOW_IMAGE_NAME:-epappas/airflow:latest}
     container_name: airflow_init
+    <<: *airflow-common
     command: version
     environment:
       <<: *airflow-common-env
@@ -129,9 +143,10 @@ services:
       - airflow
 
   flower:
+    image: ${AIRFLOW_IMAGE_NAME:-epappas/airflow:latest}
+    container_name: celery_flower
     <<: *airflow-common
     command: celery flower
-    container_name: celery_flower
     ports:
       - 5555:5555
     networks:
@@ -144,7 +159,8 @@ services:
     restart: always
 
   # meltano-airflow-scheduler:
-  #   image: epappas/meltano:latest
+  #   image: ${MELTANO_IMAGE_NAME:-epappas/meltano:latest}
+  #   container_name: meltano-airflow-scheduler
   #   <<: *meltano-common
   #   command: -v --log-level=debug invoke airflow scheduler
   #   expose:
@@ -155,7 +171,8 @@ services:
   #   restart: unless-stopped
 
   # meltano-airflow-webserver:
-  #   image: epappas/meltano:latest
+  #   image: ${MELTANO_IMAGE_NAME:-epappas/meltano:latest}
+  #   container_name: meltano-airflow-webserver
   #   <<: *meltano-common
   #   command: -v --log-level=debug invoke airflow webserver
   #   expose:

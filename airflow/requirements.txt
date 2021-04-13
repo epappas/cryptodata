@@ -1,0 +1,4 @@
+meltano==1.71.0
+python-dateutil<2.7.0,>=2.1
+boto3
+requests

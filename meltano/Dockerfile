@@ -1,4 +1,4 @@
-ARG MELTANO_IMAGE=meltano/meltano:v1.71.0-python3.8
+ARG MELTANO_IMAGE=meltano/meltano:v1.71.0-python3.7
 ARG MELTANO_DISCOVERY_URL
 
 FROM $MELTANO_IMAGE

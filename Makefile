@@ -16,8 +16,13 @@ build:
 install:
 	$(CWD)/docker/meltano.sh install
 
+push:
+	$(CWD)/docker/push.sh postgres
+	$(CWD)/docker/push.sh airflow
+	$(CWD)/docker/push.sh meltano
+
 airflow_init:
-	$(CWD)/docker/airflow_init.sh
+	$(CWD)/docker/airflow-init.sh
 
 run:
 	@docker-compose up -d

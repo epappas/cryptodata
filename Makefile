@@ -13,13 +13,9 @@ restart: stop run
 build:
 	@docker-compose build
 
-install:
-	$(CWD)/docker/meltano.sh install
-
 push:
 	$(CWD)/docker/push.sh postgres
 	$(CWD)/docker/push.sh airflow
-	$(CWD)/docker/push.sh meltano
 
 airflow_init:
 	$(CWD)/docker/airflow-init.sh
@@ -27,7 +23,7 @@ airflow_init:
 run:
 	@docker-compose up -d
 
-logs:
+dlogs:
 	@docker-compose logs -f -t
 
 stop:
@@ -40,7 +36,3 @@ virtualenv:
 	$(PYTHON) -m venv .venv
 	@echo Enter the following command to activate your virtualenv:
 	@echo source .venv/bin/activate
-
-dev_env:
-	$(PIP) install -r requirements.txt
-

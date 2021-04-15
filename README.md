@@ -10,7 +10,6 @@ make all run
 
 ## Architecture
 
-- meltano -> framework for singer.io type data streams
 - airflow -> orchestration
 - postgres -> DB for all the things
 

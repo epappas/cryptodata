@@ -1,25 +1,5 @@
 version: '3.8'
 
-x-meltano-common: 
-  &meltano-common
-  volumes:
-    - meltano_elt_logs_data:/project/.meltano/logs/elt
-  environment:
-      - TARGET_POSTGRES_POSTGRES_HOST=postgres
-      - TARGET_POSTGRES_POSTGRES_PORT=5432
-      - TARGET_POSTGRES_POSTGRES_DATABASE=db_meltano
-      - TARGET_POSTGRES_POSTGRES_USERNAME=airflow
-      - TARGET_POSTGRES_POSTGRES_PASSWORD=airflow
-      # - TARGET_POSTGRES_POSTGRES_SCHEMA=public
-      - MELTANO_DATABASE_URI=postgresql+psycopg2://airflow:airflow@postgres/db_meltano
-      # - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/db_airflow
-      # - MELTANO_DATABASE_URI=postgres://airflow:airflow@postgres/db_meltano
-      # - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgres://airflow:airflow@postgres/db_airflow
-      # - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-  depends_on:
-    postgres:
-      condition: service_healthy
-
 x-airflow-common:
   &airflow-common
   environment:
@@ -31,15 +11,13 @@ x-airflow-common:
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__ENABLE_XCOM_PICKLING: 'true'
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
-    MELTANO_PROJECT_ROOT: '/opt/meltano'
     # AIRFLOW__CORE__LOAD_EXAMPLES: 'true'
   volumes:
-    - ./meltano:/opt/meltano
-    - ./airflow/dags:/opt/airflow/dags
-    - ./airflow/logs:/opt/airflow/logs
-    - ./airflow/plugins:/opt/airflow/plugins
+    - ./lib:/opt/airflow/lib
+    - ./dags:/opt/airflow/dags
+    - ./logs:/opt/airflow/logs
+    - ./plugins:/opt/airflow/plugins
     - /var/run/docker.sock:/var/run/docker.sock:rw
-    # - /usr/local/bin/docker:/bin/docker:ro
   user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-50000}"
   privileged: true
   depends_on:
@@ -51,48 +29,21 @@ x-airflow-common:
 volumes:
   postgres-db-volume:
     driver: local
-  meltano_elt_logs_data:
-    driver: local
 
 networks:
-  meltano:
   airflow:
 
 services:
-  meltano:
-    image: ${MELTANO_IMAGE_NAME:-epappas/meltano:latest}
-    container_name: meltano
-    build:
-      context: ./meltano
-      dockerfile: Dockerfile
-    <<: *meltano-common
-    networks:
-      - meltano
-      - airflow
-
   airflow:
     image: epappas/airflow:latest
     container_name: airflow
     build:
-      context: ./airflow
+      context: .
       dockerfile: Dockerfile
     <<: *airflow-common
     networks:
-      - meltano
       - airflow
 
-  meltano-ui:
-    image: ${MELTANO_IMAGE_NAME:-epappas/meltano:latest}
-    container_name: meltano_ui
-    <<: *meltano-common
-    command: 'ui'
-    ports:
-      - '5000:5000'
-      - '5010:5010'
-    networks:
-      - meltano
-    restart: unless-stopped
-  
   airflow-webserver:
     image: ${AIRFLOW_IMAGE_NAME:-epappas/airflow:latest}
     container_name: airflow_webserver
@@ -138,7 +89,6 @@ services:
   #     _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-airflow}
   #     _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
   #   networks:
-  #     - meltano
   #     - airflow
 
   flower:
@@ -156,37 +106,6 @@ services:
       timeout: 10s
       retries: 5
     restart: always
-
-  # meltano-airflow-scheduler:
-  #   image: ${MELTANO_IMAGE_NAME:-epappas/meltano:latest}
-  #   container_name: meltano-airflow-scheduler
-  #   <<: *meltano-common
-  #   command: -v --log-level=debug invoke airflow scheduler
-  #   expose:
-  #     - 8793
-  #   networks:
-  #     - meltano
-  #     - airflow
-  #   restart: unless-stopped
-
-  # meltano-airflow-webserver:
-  #   image: ${MELTANO_IMAGE_NAME:-epappas/meltano:latest}
-  #   container_name: meltano-airflow-webserver
-  #   <<: *meltano-common
-  #   command: -v --log-level=debug invoke airflow webserver
-  #   expose:
-  #     - 8080
-  #   ports:
-  #     - 8080:8080
-  #   networks:
-  #     - meltano
-  #     - airflow
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
-  #     interval: 30s
-  #     timeout: 30s
-  #     retries: 3
 
   postgres:
     image: epappas/postgres:latest
@@ -206,14 +125,13 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - meltano
       - airflow
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "airflow"]
       interval: 5s
       retries: 5
     restart: always
-  
+
   redis:
     image: redis:latest
     container_name: redis

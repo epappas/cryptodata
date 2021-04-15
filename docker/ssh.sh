@@ -9,5 +9,5 @@ if [ $# -eq 0 ]; then
   >&2 echo "set a service to connect to"
   exit 1
 else
-  exec docker-compose exec -it "${@}" /bin/bash
+  exec docker-compose exec "${@}" /bin/bash
 fi

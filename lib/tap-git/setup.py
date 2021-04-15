@@ -10,9 +10,8 @@ setup(
     classifiers=["Programming Language :: Python :: 3 :: Only"],
     py_modules=["tap_git"],
     install_requires=[
-        # NB: Pin these to a more specific version for tap reliability
-        "singer-python",
-        "requests",
+        'singer-python==5.12.1',
+        'requests==2.20.0'
     ],
     entry_points="""
     [console_scripts]

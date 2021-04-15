@@ -9,8 +9,8 @@ setup(name='tap-postgres',
       url='https://singer.io',
       classifiers=['Programming Language :: Python :: 3 :: Only'],
       install_requires=[
-          'singer-python==5.3.1',
-          'psycopg2==2.7.4',
+          'singer-python==5.12.1',
+          'psycopg2==2.8.5',
           'strict-rfc3339==0.7',
       ],
       extras_require={
@@ -25,4 +25,4 @@ setup(name='tap-postgres',
           tap-postgres=tap_postgres:main
       ''',
       packages=['tap_postgres', 'tap_postgres.sync_strategies']
-)
+      )

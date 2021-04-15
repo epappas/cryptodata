@@ -8,6 +8,10 @@ x-airflow-common:
     AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/db_airflow
     AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/db_airflow
     AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
+    INTEGRATION_STATSD: 'true'
+    AIRFLOW__METRICS__STATSD_ON: 'True'
+    AIRFLOW__METRICS__STATSD_HOST: statsd-exporter
+    AIRFLOW__METRICS__STATSD_PORT: 9125
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__ENABLE_XCOM_PICKLING: 'true'
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
@@ -144,4 +148,26 @@ services:
       interval: 5s
       timeout: 30s
       retries: 50
+    restart: always
+
+  statsd-exporter:
+    image: apache/airflow:airflow-statsd-exporter-2020.09.05-v0.17.0
+    ports:
+      - "9125:9125"
+      - "9125:9125/udp"
+      - "29102:9102"
+    networks:
+      - airflow
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "23000:3000"
+    networks:
+      - airflow
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:3000/"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
     restart: always

@@ -10,30 +10,30 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "pip"
-    directory: "singer-python"
+    directory: "lib/singer-python"
     schedule:
       interval: "daily"
   - package-ecosystem: "pip"
-    directory: "tap-git"
+    directory: "lib/tap-git"
     schedule:
       interval: "daily"
   - package-ecosystem: "pip"
-    directory: "tap-github"
+    directory: "lib/tap-github"
     schedule:
       interval: "daily"
   - package-ecosystem: "pip"
-    directory: "tap-gitlab"
+    directory: "lib/tap-gitlab"
     schedule:
       interval: "daily"
   - package-ecosystem: "pip"
-    directory: "tap-jira"
+    directory: "lib/tap-jira"
     schedule:
       interval: "daily"
   - package-ecosystem: "pip"
-    directory: "tap-postgres"
+    directory: "lib/tap-postgres"
     schedule:
       interval: "daily"
   - package-ecosystem: "pip"
-    directory: "target-postgres"
+    directory: "lib/target-postgres"
     schedule:
       interval: "daily"

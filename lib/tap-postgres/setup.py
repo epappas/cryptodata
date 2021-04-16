@@ -9,15 +9,15 @@ setup(name='tap-postgres',
       url='https://singer.io',
       classifiers=['Programming Language :: Python :: 3 :: Only'],
       install_requires=[
-          'singer-python==5.12.1',
-          'psycopg2==2.8.5',
-          'strict-rfc3339==0.7',
+          'singer-python>=5.12.1',
+          'psycopg2>=2.8.5',
+          'strict-rfc3339>=0.7',
       ],
       extras_require={
           'dev': [
               'ipdb',
-              'pylint==2.6.0',
-              'nose==1.3.7',
+              'pylint>=2.6.0',
+              'nose>=1.3.7',
           ]
       },
       entry_points='''

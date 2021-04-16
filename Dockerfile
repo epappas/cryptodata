@@ -10,6 +10,7 @@ RUN apt-get update \
 
 USER airflow
 
+ADD ./plugins /opt/airflow/plugins
 ADD ./lib /opt/airflow/lib
 ADD requirements.txt /opt/airflow/requirements.txt
 

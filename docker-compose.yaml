@@ -14,7 +14,7 @@ x-airflow-common:
     AIRFLOW__METRICS__STATSD_PORT: 9125
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__ENABLE_XCOM_PICKLING: 'true'
-    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+    # AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     # AIRFLOW__CORE__LOAD_EXAMPLES: 'true'
   volumes:
     - ./lib:/opt/airflow/lib

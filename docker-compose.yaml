@@ -1,5 +1,51 @@
 version: '3.8'
 
+x-postgres-env: &postgres-env
+  POSTGRES_USER: airflow
+  POSTGRES_PASSWORD: airflow
+  POSTGRES_DB: airflow
+  PGDATA: /var/lib/postgresql/data/pgdata
+
+x-superset-common:
+  &superset-common
+  image: &superset-image epappas/superset:latest
+  # image: &superset-image apache/superset:latest
+  environment:
+    &superset-env
+    COMPOSE_PROJECT_NAME: 'superset'
+    DATABASE_DB: 'db_superset'
+    DATABASE_HOST: 'postgres'
+    DATABASE_PASSWORD: 'airflow'
+    DATABASE_USER: 'airflow'
+    DATABASE_PORT: '5432'
+    DATABASE_DIALECT: 'postgresql'
+    # POSTGRES_DB: 'db_superset'
+    # POSTGRES_USER: 'airflow'
+    # POSTGRES_PASSWORD: 'airflow'
+    PYTHONPATH: '/app/pythonpath:/app/docker/pythonpath_dev'
+    REDIS_HOST: 'redis'
+    REDIS_PORT: 6379
+    FLASK_ENV: 'production'
+    SUPERSET_ENV: 'production'
+    SUPERSET_LOAD_EXAMPLES: 'yes'
+    CYPRESS_CONFIG: 'false'
+    SUPERSET_PORT: 8088
+  user: 'root'
+  volumes:
+    &superset-volumes
+    # /app/pythonpath_docker will be appended to the PYTHONPATH in the final container
+    - ./superset/docker:/app/docker
+    - superset_home:/app/superset_home
+  networks:
+    &superset-networks
+    - superset
+  depends_on:
+    &superset-depends-on
+    redis:
+      condition: service_healthy
+    postgres:
+      condition: service_healthy
+
 x-airflow-common:
   &airflow-common
   environment:
@@ -24,6 +70,9 @@ x-airflow-common:
     - /var/run/docker.sock:/var/run/docker.sock:rw
   user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-50000}"
   privileged: true
+  networks:
+    &airflow-networks
+    - airflow
   depends_on:
     redis:
       condition: service_healthy
@@ -33,9 +82,14 @@ x-airflow-common:
 volumes:
   postgres-db-volume:
     driver: local
+  redis:
+    driver: local
+  superset_home:
+    driver: local
 
 networks:
   airflow:
+  superset:
 
 services:
   airflow:
@@ -45,8 +99,6 @@ services:
       context: .
       dockerfile: Dockerfile
     <<: *airflow-common
-    networks:
-      - airflow
 
   airflow-webserver:
     image: ${AIRFLOW_IMAGE_NAME:-epappas/airflow:latest}
@@ -55,8 +107,6 @@ services:
     command: webserver
     ports:
       - 8080:8080
-    networks:
-      - airflow
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
       interval: 10s
@@ -68,8 +118,6 @@ services:
     image: ${AIRFLOW_IMAGE_NAME:-epappas/airflow:latest}
     <<: *airflow-common
     container_name: airflow_scheduler
-    networks:
-      - airflow
     command: scheduler
     restart: always
 
@@ -77,8 +125,6 @@ services:
     image: ${AIRFLOW_IMAGE_NAME:-epappas/airflow:latest}
     container_name: airflow_worker
     <<: *airflow-common
-    networks:
-      - airflow
     command: celery worker
     restart: always
 
@@ -92,8 +138,6 @@ services:
   #     _AIRFLOW_WWW_USER_CREATE: 'true'
   #     _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-airflow}
   #     _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
-  #   networks:
-  #     - airflow
 
   flower:
     image: ${AIRFLOW_IMAGE_NAME:-epappas/airflow:latest}
@@ -102,8 +146,6 @@ services:
     command: celery flower
     ports:
       - 5555:5555
-    networks:
-      - airflow
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:5555/"]
       interval: 10s
@@ -118,10 +160,7 @@ services:
       dockerfile: Dockerfile
     container_name: postgres
     environment:
-      POSTGRES_USER: airflow
-      POSTGRES_PASSWORD: airflow
-      POSTGRES_DB: airflow
-      PGDATA: /var/lib/postgresql/data/pgdata
+      <<: *postgres-env
     volumes:
       - postgres-db-volume:/var/lib/postgresql/data
     expose:
@@ -130,6 +169,7 @@ services:
       - "5432:5432"
     networks:
       - airflow
+      - superset
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "airflow"]
       interval: 5s
@@ -143,6 +183,9 @@ services:
       - 6379:6379
     networks:
       - airflow
+      - superset
+    volumes:
+      - redis:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -158,6 +201,7 @@ services:
       - "29102:9102"
     networks:
       - airflow
+      - superset
 
   grafana:
     image: grafana/grafana
@@ -165,9 +209,43 @@ services:
       - "23000:3000"
     networks:
       - airflow
+      - superset
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:3000/"]
       interval: 10s
       timeout: 10s
       retries: 5
     restart: always
+
+  superset:
+    image: epappas/superset:latest
+    container_name: superset
+    build:
+      context: ./superset
+      dockerfile: Dockerfile
+    <<: *superset-common
+
+  superset-app:
+    container_name: superset_app
+    command: ["/app/docker/docker-bootstrap.sh", "app-gunicorn"]
+    ports:
+      - 8088:8088
+    restart: unless-stopped
+    <<: *superset-common
+
+  superset-init:
+    container_name: superset_init
+    command: ["/app/docker/docker-init.sh"]
+    <<: *superset-common
+
+  superset-worker:
+    container_name: superset_worker
+    command: ["/app/docker/docker-bootstrap.sh", "worker"]
+    restart: unless-stopped
+    <<: *superset-common
+
+  superset-worker-beat:
+    container_name: superset_worker_beat
+    command: ["/app/docker/docker-bootstrap.sh", "beat"]
+    restart: unless-stopped
+    <<: *superset-common

@@ -16,6 +16,7 @@ build:
 push:
 	$(CWD)/docker/push.sh postgres
 	$(CWD)/docker/push.sh airflow
+	$(CWD)/docker/push.sh superset
 
 airflow_init:
 	$(CWD)/docker/airflow-init.sh

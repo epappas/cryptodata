@@ -4,9 +4,16 @@ set -xeuo pipefail
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)"
 
-export COMPOSE_FILE=${PROJECT_DIR}/docker-compose.yaml
 if [ $# -eq 0 ]; then
-  exec docker-compose pull --include-deps --ignore-pull-failures
+  exec docker-compose \
+  -f ${PROJECT_DIR}/docker-compose.yaml \
+  -f ${PROJECT_DIR}/docker-compose.airflow.yaml \
+  -f ${PROJECT_DIR}/docker-compose.superset.yaml \
+  pull --include-deps --ignore-pull-failures
 else
-  exec docker-compose pull --include-deps --ignore-pull-failures "${@- }"
+  exec docker-compose \
+  -f ${PROJECT_DIR}/docker-compose.yaml \
+  -f ${PROJECT_DIR}/docker-compose.airflow.yaml \
+  -f ${PROJECT_DIR}/docker-compose.superset.yaml \
+  pull --include-deps --ignore-pull-failures "${@- }"
 fi

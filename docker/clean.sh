@@ -8,4 +8,4 @@ exec docker-compose \
   -f ${PROJECT_DIR}/docker-compose.yaml \
   -f ${PROJECT_DIR}/docker-compose.airflow.yaml \
   -f ${PROJECT_DIR}/docker-compose.superset.yaml \
-  logs -f -t
+  down --volumes --rmi all --remove-orphans

@@ -11,7 +11,7 @@ all: build airflow_init
 restart: stop run
 
 build:
-	@docker-compose build
+	$(CWD)/docker/build.sh
 
 push:
 	$(CWD)/docker/push.sh postgres
@@ -22,16 +22,22 @@ airflow_init:
 	$(CWD)/docker/airflow-init.sh
 
 run:
-	@docker-compose up -d
+	$(CWD)/docker/up.sh
+
+run-airflow:
+	$(CWD)/docker/airflow-up.sh
+
+run-superset:
+	$(CWD)/docker/superset-up.sh
 
 dlogs:
-	@docker-compose logs -f -t
+	$(CWD)/docker/logs.sh
 
 stop:
-	@docker-compose down --remove-orphans
+	$(CWD)/docker/stop.sh
 
 clean:
-	@docker-compose down --volumes --rmi all --remove-orphans
+	$(CWD)/docker/clean.sh
 
 virtualenv:
 	$(PYTHON) -m venv .venv

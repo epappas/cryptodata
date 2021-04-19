@@ -1,0 +1,72 @@
+version: '3.8'
+
+x-superset-common:
+  &superset-common
+  image: &superset-image epappas/superset:latest
+  # image: &superset-image apache/superset:latest
+  environment:
+    &superset-env
+    COMPOSE_PROJECT_NAME: 'superset'
+    DATABASE_DB: 'db_superset'
+    DATABASE_HOST: 'postgres'
+    DATABASE_PASSWORD: 'airflow'
+    DATABASE_USER: 'airflow'
+    DATABASE_PORT: '5432'
+    DATABASE_DIALECT: 'postgresql'
+    PYTHONPATH: '/app/pythonpath:/app/docker/pythonpath_dev'
+    REDIS_HOST: 'redis'
+    REDIS_PORT: 6379
+    FLASK_ENV: 'production'
+    SUPERSET_ENV: 'production'
+    SUPERSET_LOAD_EXAMPLES: 'yes'
+    CYPRESS_CONFIG: 'false'
+    SUPERSET_PORT: 8088
+  user: 'root'
+  volumes:
+    &superset-volumes
+    # /app/pythonpath_docker will be appended to the PYTHONPATH in the final container
+    - ./superset/docker:/app/docker
+    - superset_home:/app/superset_home
+  networks:
+    &superset-networks
+    - superset
+  depends_on:
+    &superset-depends-on
+    redis:
+      condition: service_healthy
+    postgres:
+      condition: service_healthy
+
+services:
+  superset:
+    image: epappas/superset:latest
+    container_name: superset
+    build:
+      context: ./superset
+      dockerfile: Dockerfile
+    <<: *superset-common
+
+  superset-app:
+    container_name: superset_app
+    command: ["/app/docker/docker-bootstrap.sh", "app-gunicorn"]
+    ports:
+      - 8088:8088
+    restart: unless-stopped
+    <<: *superset-common
+
+  superset-init:
+    container_name: superset_init
+    command: ["/app/docker/docker-init.sh"]
+    <<: *superset-common
+
+  superset-worker:
+    container_name: superset_worker
+    command: ["/app/docker/docker-bootstrap.sh", "worker"]
+    restart: unless-stopped
+    <<: *superset-common
+
+  superset-worker-beat:
+    container_name: superset_worker_beat
+    command: ["/app/docker/docker-bootstrap.sh", "beat"]
+    restart: unless-stopped
+    <<: *superset-common

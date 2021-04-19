@@ -4,9 +4,16 @@ set -xeuo pipefail
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)"
 
-export COMPOSE_FILE=${PROJECT_DIR}/docker-compose.yaml
 if [ $# -eq 0 ]; then
-  exec docker-compose push
+  exec docker-compose \
+  -f ${PROJECT_DIR}/docker-compose.yaml \
+  -f ${PROJECT_DIR}/docker-compose.airflow.yaml \
+  -f ${PROJECT_DIR}/docker-compose.superset.yaml \
+  push
 else
-  exec docker-compose push "${@- }"
+  exec docker-compose \
+  -f ${PROJECT_DIR}/docker-compose.yaml \
+  -f ${PROJECT_DIR}/docker-compose.airflow.yaml \
+  -f ${PROJECT_DIR}/docker-compose.superset.yaml \
+  push "${@- }"
 fi

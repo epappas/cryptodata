@@ -5,4 +5,3 @@
 ./lib/tap-jira
 ./lib/tap-postgres
 ./lib/target-postgres
-./plugins/airflow-provider-sample

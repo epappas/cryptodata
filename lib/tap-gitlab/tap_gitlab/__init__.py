@@ -13,7 +13,7 @@ from strict_rfc3339 import rfc3339_to_timestamp
 
 PER_PAGE = 100
 CONFIG = {
-    'api_url': "https://gitlab.com/api/v3",
+    'api_url': "https://gitlab.com/api/v4",
     'private_token': None,
     'start_date': None,
     'groups': ''

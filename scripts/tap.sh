@@ -11,7 +11,8 @@ elif [ $# -eq 2 ] && [ "${2}" == "discover" ]; then
   exec tap-"${1}" -c $PROJECT_DIR/data/config."${1}".json --discover
 else
   exec tap-"${1}" \
-    -c $PROJECT_DIR/data/config."${1}".json \
-    -p $PROJECT_DIR/data/properties."${1}".json \
-    -s $PROJECT_DIR/data/state."${1}".json
+    --config $PROJECT_DIR/data/config."${1}".json \
+    --properties $PROJECT_DIR/data/properties."${1}".json \
+    --catalog $PROJECT_DIR/data/properties."${1}".json \
+    --state $PROJECT_DIR/data/state."${1}".json
 fi

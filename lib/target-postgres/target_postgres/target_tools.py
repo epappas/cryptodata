@@ -5,6 +5,7 @@ import pkg_resources
 import sys
 import threading
 import decimal
+import urllib
 
 import singer
 from singer import utils, metadata, metrics

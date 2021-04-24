@@ -2,6 +2,4 @@
 ./lib/tap-git
 ./lib/tap-github
 ./lib/tap-gitlab
-./lib/tap-jira
-./lib/tap-postgres
 ./lib/target-postgres

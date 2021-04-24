@@ -12,4 +12,8 @@ pip install --upgrade --upgrade-strategy only-if-needed \
 
 pip install --upgrade --upgrade-strategy only-if-needed \
   --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.0.1/constraints-3.7.txt" \
+  -r $PROJECT_DIR/requirements-dev.txt
+
+pip install --upgrade --upgrade-strategy only-if-needed \
+  --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.0.1/constraints-3.7.txt" \
   -r $PROJECT_DIR/requirements.txt

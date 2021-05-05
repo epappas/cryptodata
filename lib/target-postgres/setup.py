@@ -30,7 +30,7 @@ setup(
         'tests': [
             "chance==0.110",
             "Faker==4.0.3",
-            "pytest==5.4.1"
+            "pytest==6.2.4"
         ]},
     entry_points='''
       [console_scripts]

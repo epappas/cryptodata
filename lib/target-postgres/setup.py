@@ -29,7 +29,7 @@ setup(
     extras_require={
         'tests': [
             "chance==0.110",
-            "Faker==4.0.3",
+            "Faker==8.5.1",
             "pytest==5.4.1"
         ]},
     entry_points='''

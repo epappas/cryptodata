@@ -83,10 +83,25 @@ airflow:
   ##
   config:
     # Kubernetes Configuration
-    # AIRFLOW__KUBERNETES__DAGS_IN_IMAGE: 'True'
-    AIRFLOW__KUBERNETES__GIT_DAGS_FOLDER_MOUNT_POINT: "/dags"
-    AIRFLOW__KUBERNETES__GIT_BRANCH: "new"
-    AIRFLOW__KUBERNETES__GIT_REPO: "git@github.com:epappas/cryptodata.git"
+    # AIRFLOW__CORE__LOAD_EXAMPLES: "True"
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "True"
+    AIRFLOW__CORE__DAGS_FOLDER: "/opt/airflow/dags"
+    AIRFLOW__KUBERNETES__NAMESPACE: "airflow"
+    AIRFLOW__KUBERNETES__DAGS_IN_IMAGE: "True"
+    AIRFLOW__KUBERNETES__DAGS_VOLUME_MOUNT_POINT: "/opt/airflow/dags"
+    AIRFLOW__KUBERNETES__DAGS_VOLUME_SUBPATH: "/opt/airflow/dags"
+    # AIRFLOW__KUBERNETES__GIT_DAGS_FOLDER_MOUNT_POINT: "/opt/airflow/dags"
+    # AIRFLOW__KUBERNETES__GIT_SUBPATH: "dags"
+    # AIRFLOW__KUBERNETES__GIT_BRANCH: "new"
+    # AIRFLOW__KUBERNETES__GIT_REPO: "https://github.com/epappas/cryptodata.git"
+    AIRFLOW__KUBERNETES__WORKER_SERVICE_ACCOUNT_NAME: "airflow"
+    AIRFLOW__KUBERNETES__WORKER_CONTAINER_REPOSITORY: "apache/airflow"
+    AIRFLOW__KUBERNETES__WORKER_CONTAINER_TAG: "1.10.10-python3.6"
+    AIRFLOW__KUBERNETES__WORKER_CONTAINER_IMAGE_PULL_POLICY: "IfNotPresent"
+    AIRFLOW__KUBERNETES__WORKER_PODS_CREATION_BATCH_SIZE: "10"
+    AIRFLOW__KUBERNETES__RUN_AS_USER: "50000"
+    AIRFLOW__KUBERNETES__DELETE_WORKER_PODS: "False"
+    AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: "60"
 
 
   ## extra annotations for the web/scheduler/worker Pods
@@ -150,6 +165,7 @@ airflow:
     - "kubernetes==11.0.0"
     - "pytest==5.4.3"
     - "google-cloud-secret-manager==0.2.0"
+    - "argcomplete"
 
   # https://stackoverflow.com/questions/58299948/helm-stable-airflow-custom-values-for-airflow-deployment-with-shared-persisten
   ## extra volumeMounts for the web/scheduler/worker Pods
@@ -712,7 +728,7 @@ logs:
   persistence:
     ## if a persistent volume is mounted at `logs.path`
     ##
-    enabled: false
+    enabled: true
 
     ## the name of an existing PVC to use
     ##
@@ -766,7 +782,8 @@ dags:
   ## - if set to true, and you are using `dags.git.gitSync`, you must also enable
   ## `dags.initContainer` to ensure the requirements.txt is available at Pod start
   ##
-  installRequirements: false
+  # installRequirements: false
+  installRequirements: true
 
   ## configs for the dags PVC
   ##
@@ -817,11 +834,11 @@ dags:
     ## EXAMPLE: (SSH)
     ##   url: "ssh://git@github.com:torvalds/linux.git"
     ##
-    url: ""
+    url: "https://github.com/epappas/cryptodata.git"
 
     ## the branch/tag/sha1 which we clone
     ##
-    ref: master
+    ref: new
 
     ## the name of a pre-created secret containing files for ~/.ssh/
     ##
@@ -914,6 +931,7 @@ dags:
     ##   requirements.txt is available at Pod start
     ##
     enabled: false
+    # enabled: true
 
     ## resource requests/limits for the git-clone container
     ##
@@ -1106,7 +1124,7 @@ serviceAccount:
   ## NOTE:
   ## - by default the name is generated using the `airflow.serviceAccountName` template in `_helpers.tpl`
   ##
-  name: ""
+  name: "airflow"
 
   ## annotations for the ServiceAccount
   ##

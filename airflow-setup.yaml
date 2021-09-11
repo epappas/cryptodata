@@ -25,7 +25,9 @@ airflow:
   ##     - `AIRFLOW__KUBERNETES__WORKER_SERVICE_ACCOUNT_NAME`
   ##     - `AIRFLOW__KUBERNETES__ENV_FROM_CONFIGMAP_REF`
   ##
-  executor: CeleryExecutor
+  # executor: CeleryExecutor
+  # executor: KubernetesExecutor
+  executor: KubernetesExecutor
 
   ## the fernet key used to encrypt the connections/variables in the database
   ##
@@ -39,7 +41,7 @@ airflow:
   ## GENERATE:
   ##   python -c "from cryptography.fernet import Fernet; FERNET_KEY = Fernet.generate_key().decode(); print(FERNET_KEY)"
   ##
-  fernetKey: "7T512UXSSmBOkpWimFHIVb8jK6lfmSAvx4mO6Arehnc="
+  fernetKey: ""
 
   ## environment variables for the web/scheduler/worker Pods (for airflow configs)
   ##
@@ -79,7 +81,13 @@ airflow:
   ##     ## Proxy Config
   ##     HTTP_PROXY: "http://proxy.example.com:8080"
   ##
-  config: {}
+  config:
+    # Kubernetes Configuration
+    # AIRFLOW__KUBERNETES__DAGS_IN_IMAGE: 'True'
+    AIRFLOW__KUBERNETES__GIT_DAGS_FOLDER_MOUNT_POINT: "/dags"
+    AIRFLOW__KUBERNETES__GIT_BRANCH: "new"
+    AIRFLOW__KUBERNETES__GIT_REPO: "git@github.com:epappas/cryptodata.git"
+
 
   ## extra annotations for the web/scheduler/worker Pods
   ##
@@ -480,7 +488,8 @@ web:
 workers:
   ## if the airflow workers StatefulSet should be deployed
   ##
-  enabled: true
+  # enabled: true
+  enabled: false
 
   ## resource requests/limits for the airflow worker Pods
   ##
@@ -604,7 +613,8 @@ flower:
   ## NOTE:
   ## - only takes effect if `airflow.executor` is `CeleryExecutor`
   ##
-  enabled: true
+  # enabled: true
+  enabled: false
 
   ## resource requests/limits for the flower Pods
   ##
@@ -1230,7 +1240,8 @@ redis:
   ## - set to `false` if using an external redis database
   ## - set to `false` if `airflow.executor` is `KubernetesExecutor`
   ##
-  enabled: true
+  # enabled: true
+  enabled: false
 
   ## the redis password
   ##

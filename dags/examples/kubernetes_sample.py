@@ -22,10 +22,10 @@ dag = DAG("kubernetes_sample", default_args=default_args, schedule_interval="@on
 
 start = DummyOperator(task_id="run_this_first", dag=dag)
 
-# intentionally pointing to "default" kubernetes namespace to illustrate that pods can run in different environments
-# "default" should work for cloud composer as well
+# intentionally pointing to "airflow" kubernetes namespace to illustrate that pods can run in different environments
+# "airflow" should work for cloud composer as well
 passing_python = KubernetesPodOperator(
-    namespace="default",
+    namespace="airflow",
     image="python:3.7-slim",
     cmds=["python", "-c"],
     arguments=["print('hello world')"],
@@ -37,7 +37,7 @@ passing_python = KubernetesPodOperator(
 )
 
 passing_bash = KubernetesPodOperator(
-    namespace="default",
+    namespace="airflow",
     image="ubuntu:16.04",
     cmds=["/bin/bash", "-cx"],
     arguments=["echo hello world"],
@@ -49,7 +49,7 @@ passing_bash = KubernetesPodOperator(
 )
 
 private_gcr_passing = KubernetesPodOperator(
-    namespace="default",
+    namespace="airflow",
     image=DBT_IMAGE,
     cmds=["python", "-c"],
     arguments=["print('hello world')"],

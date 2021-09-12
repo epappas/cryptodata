@@ -1,9 +1,7 @@
 from airflow import DAG
-from datetime import datetime, timedelta
+from datetime import datetime
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 from airflow.operators.dummy_operator import DummyOperator
-
-from airflow_utils import pod_env_vars, DBT_IMAGE
 
 
 default_args = {
@@ -14,7 +12,6 @@ default_args = {
     "email_on_failure": False,
     "email_on_retry": False,
     "retries": 0,
-    # "retry_delay": timedelta(minutes=5),
 }
 
 dag = DAG("kubernetes_sample", default_args=default_args, schedule_interval="@once",)
@@ -48,18 +45,4 @@ passing_bash = KubernetesPodOperator(
     dag=dag,
 )
 
-private_gcr_passing = KubernetesPodOperator(
-    namespace="airflow",
-    image=DBT_IMAGE,
-    cmds=["python", "-c"],
-    arguments=["print('hello world')"],
-    labels={"foo": "bar"},
-    name="private-gcr-passing",
-    task_id="private-gcr-passing-task",
-    get_logs=True,
-    # Storing sensitive credentials in env_vars will be exposed in plain text
-    env_vars=pod_env_vars,
-    dag=dag,
-)
-
-start >> [passing_python, passing_bash, private_gcr_passing]
+start >> [passing_python, passing_bash]

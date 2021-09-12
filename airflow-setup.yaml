@@ -5,9 +5,7 @@ airflow:
   ## configs for the docker image of the web/scheduler/worker
   ##
   image:
-    # repository: apache/airflow
-    repository: my-docker-airflow
-    # tag: 1.10.10-python3.6
+    repository: epappas/airflow
     tag: latest
     ## values: Always or IfNotPresent
     pullPolicy: IfNotPresent
@@ -113,9 +111,7 @@ airflow:
     # AIRFLOW__KUBERNETES__GIT_SYNC_CONTAINER_TAG: "v3.1.6"
     # ----
     AIRFLOW__KUBERNETES__WORKER_SERVICE_ACCOUNT_NAME: "airflow"
-    # AIRFLOW__KUBERNETES__WORKER_CONTAINER_REPOSITORY: "apache/airflow"
-    AIRFLOW__KUBERNETES__WORKER_CONTAINER_REPOSITORY: "my-docker-airflow"
-    # AIRFLOW__KUBERNETES__WORKER_CONTAINER_TAG: "1.10.10-python3.6"
+    AIRFLOW__KUBERNETES__WORKER_CONTAINER_REPOSITORY: "epappas/airflow"
     AIRFLOW__KUBERNETES__WORKER_CONTAINER_TAG: "latest"
     AIRFLOW__KUBERNETES__WORKER_CONTAINER_IMAGE_PULL_POLICY: "IfNotPresent"
     AIRFLOW__KUBERNETES__WORKER_PODS_CREATION_BATCH_SIZE: "10"

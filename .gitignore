@@ -16,6 +16,7 @@ iap-ssh-access-sa.json
 #virtual environments
 py37_venv/
 py38_venv/
+/data
 
 # C extensions
 *.so

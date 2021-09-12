@@ -1,0 +1,25 @@
+version: '3.8'
+
+x-airflow-common:
+  &airflow-common
+  environment:
+    &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+    AIRFLOW__CORE__DAGS_FOLDER: "/opt/airflow/dags"
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "True"
+  user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-50000}"
+  networks:
+    &airflow-networks
+    - airflow
+
+networks:
+  airflow:
+
+services:
+  airflow:
+    image: epappas/airflow:latest
+    container_name: airflow
+    build:
+      context: .
+      dockerfile: Dockerfile
+    <<: *airflow-common

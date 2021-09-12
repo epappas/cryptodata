@@ -1,5 +1,11 @@
-./lib/singer-python
-./lib/tap-git
-./lib/tap-github
-./lib/tap-gitlab
-./lib/target-postgres
+# apache-airflow[crypto]==1.10.15
+apache-airflow[crypto,amazon,s3,postgres,async,kubernetes,slack,jira,virtualenv]==1.10.15
+# pandas
+# numpy
+# pytz
+# pyOpenSSL
+# ./lib/singer-python
+# ./lib/tap-git
+# ./lib/tap-github
+# ./lib/tap-gitlab
+# ./lib/target-postgres

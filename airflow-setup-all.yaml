@@ -5,10 +5,8 @@ airflow:
   ## configs for the docker image of the web/scheduler/worker
   ##
   image:
-    # repository: apache/airflow
-    repository: my-docker-airflow
-    # tag: 1.10.10-python3.6
-    tag: latest
+    repository: apache/airflow
+    tag: 1.10.10-python3.6
     ## values: Always or IfNotPresent
     pullPolicy: IfNotPresent
     pullSecret: ""
@@ -96,7 +94,7 @@ airflow:
     AIRFLOW__KUBERNETES__DAGS_IN_IMAGE: "True"
     # AIRFLOW__KUBERNETES__DAGS_IN_IMAGE: "False"
     AIRFLOW__KUBERNETES__DAGS_VOLUME_MOUNT_POINT: "/opt/airflow/dags"
-    AIRFLOW__KUBERNETES__DAGS_VOLUME_SUBPATH: ""
+    AIRFLOW__KUBERNETES__DAGS_VOLUME_SUBPATH: "/"
     # AIRFLOW__KUBERNETES__DAGS_VOLUME_SUBPATH: "/repo"
     # ----
     # AIRFLOW__KUBERNETES__GIT_SUBPATH: "dags"
@@ -113,10 +111,8 @@ airflow:
     # AIRFLOW__KUBERNETES__GIT_SYNC_CONTAINER_TAG: "v3.1.6"
     # ----
     AIRFLOW__KUBERNETES__WORKER_SERVICE_ACCOUNT_NAME: "airflow"
-    # AIRFLOW__KUBERNETES__WORKER_CONTAINER_REPOSITORY: "apache/airflow"
-    AIRFLOW__KUBERNETES__WORKER_CONTAINER_REPOSITORY: "my-docker-airflow"
-    # AIRFLOW__KUBERNETES__WORKER_CONTAINER_TAG: "1.10.10-python3.6"
-    AIRFLOW__KUBERNETES__WORKER_CONTAINER_TAG: "latest"
+    AIRFLOW__KUBERNETES__WORKER_CONTAINER_REPOSITORY: "apache/airflow"
+    AIRFLOW__KUBERNETES__WORKER_CONTAINER_TAG: "1.10.10-python3.6"
     AIRFLOW__KUBERNETES__WORKER_CONTAINER_IMAGE_PULL_POLICY: "IfNotPresent"
     AIRFLOW__KUBERNETES__WORKER_PODS_CREATION_BATCH_SIZE: "10"
     # ----
@@ -195,16 +191,16 @@ airflow:
   ##       mountPath: /opt/airflow/dags
   ##
   extraVolumeMounts: # this will get the volume and mount it to that path in the container
-    # - name: dags
-    #   mountPath: /opt/airflow/dags/ # location in the container it will put the directory mentioned below.
-    # - name: appconfig
-    #   mountPath: /opt/airflow/appconfig/
+    - name: dags
+      mountPath: /opt/airflow/dags/ # location in the container it will put the directory mentioned below.
+    - name: appconfig
+      mountPath: /opt/airflow/appconfig/
     - name: kube-config
       mountPath: /home/airflow/.kube/
     - name: service-account
       mountPath: /account.json
-    # - name: tests
-    #   mountPath: /opt/airflow/tests/
+    - name: tests
+      mountPath: /opt/airflow/tests/
 
   ## extra volumes for the web/scheduler/worker Pods
   ##
@@ -214,21 +210,21 @@ airflow:
   ##       emptyDir: {}
   ##
   extraVolumes: # this will create the volume from the directory
-    # - name: dags
-    #   hostPath:
-    #     path: "${PROJECT_DIR}/dags/"
-    # - name: appconfig
-    #   hostPath:
-    #     path: "${PROJECT_DIR}/appconfig/"
+    - name: dags
+      hostPath:
+        path: "${PROJECT_DIR}/dags/"
+    - name: appconfig
+      hostPath:
+        path: "${PROJECT_DIR}/appconfig/"
     - name: kube-config
       hostPath:
         path: "${PROJECT_DIR}/.kube/"
     - name: service-account
       hostPath:
         path: "${PROJECT_DIR}/account.json"
-    # - name: tests
-    #   hostPath:
-    #     path: "${PROJECT_DIR}/tests/"
+    - name: tests
+      hostPath:
+        path: "${PROJECT_DIR}/tests/"
 
 ###################################
 # Airflow - Scheduler Configs
@@ -895,7 +891,7 @@ dags:
     ## EXAMPLE:
     ##   repoHost: "github.com"
     ##
-    repoHost: "github.com"
+    repoHost: ""
 
     ## the port of the git repo
     ##
@@ -910,7 +906,6 @@ dags:
       ## enable the git-sync sidecar container
       ##
       enabled: false
-      # enabled: true
 
       ## resource requests/limits for the git-sync container
       ##
@@ -927,9 +922,10 @@ dags:
 
       ## the docker image for the git-sync container
       image:
-        repository: k8s.gcr.io/git-sync
-        tag: v3.1.6
-        pullPolicy: IfNotPresent
+        repository: alpine/git
+        tag: latest
+        ## values: Always or IfNotPresent
+        pullPolicy: Always
 
       ## the git sync interval in seconds
       ##
@@ -966,7 +962,8 @@ dags:
     image:
       repository: alpine/git
       tag: latest
-      pullPolicy: IfNotPresent
+      ## values: Always or IfNotPresent
+      pullPolicy: Always
 
     ## path to mount dags-data volume to
     ##

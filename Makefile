@@ -35,6 +35,21 @@ k8s_pf:
 k8s_destroy:
 	$(CWD)/scripts/6-k8s-destroy.sh
 
+clean:
+	$(CWD)/scripts/clean.sh
+
+build:
+	$(CWD)/scripts/build.sh
+
+push:
+	$(CWD)/scripts/push.sh
+
+scan:
+	$(CWD)/scripts/scan.sh
+
+pull:
+	$(CWD)/scripts/pull.sh
+
 virtualenv:
 	$(PYTHON) -m venv .venv
 	@echo Enter the following command to activate your virtualenv:

@@ -8,3 +8,4 @@ pyOpenSSL
 ./lib/tap-github
 ./lib/tap-gitlab
 ./lib/target-postgres
+./lib/cryptodata-provider

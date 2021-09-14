@@ -12,18 +12,6 @@ RUN pip install --ignore-installed \
   --upgrade-strategy only-if-needed \
   -r /opt/airflow/requirements.txt
 
-ADD providers /opt/airflow/providers
-RUN pip install --ignore-installed \
-  --no-cache-dir --user --upgrade \
-  --upgrade-strategy only-if-needed \
-  -r /opt/airflow/providers/requirements.txt
-
-ADD lib /opt/airflow/lib
-RUN pip install --ignore-installed \
-  --no-cache-dir --user --upgrade \
-  --upgrade-strategy only-if-needed \
-  -r /opt/airflow/lib/requirements.txt
-
 ADD scripts /opt/airflow/scripts
 ADD dags /opt/airflow/dags
 ADD appconfig /opt/airflow/appconfig

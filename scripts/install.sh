@@ -12,9 +12,4 @@ pip install --ignore-installed \
 pip install --ignore-installed \
   --no-cache-dir --upgrade \
   --upgrade-strategy only-if-needed \
-  -r "${PROJECT_DIR}/providers/requirements.txt"
-
-pip install --ignore-installed \
-  --no-cache-dir --upgrade \
-  --upgrade-strategy only-if-needed \
   -r "${PROJECT_DIR}/lib/requirements.txt"

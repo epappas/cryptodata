@@ -1,5 +1,5 @@
-# ./lib/singer-python
-# ./lib/tap-git
-# ./lib/tap-github
-# ./lib/tap-gitlab
-# ./lib/target-postgres
+./lib/singer-python
+./lib/tap-git
+./lib/tap-github
+./lib/tap-gitlab
+./lib/target-postgres

@@ -583,7 +583,7 @@ workers:
   ##
   autoscaling:
     enabled: true
-    maxReplicas: 2
+    maxReplicas: 4
     metrics: []
 
   ## the number of seconds to wait (in bash) before starting each worker container

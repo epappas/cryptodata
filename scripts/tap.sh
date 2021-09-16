@@ -20,6 +20,7 @@ else
         *"\"type\": \"RECORD\""*) echo "RECORD=>${entry}";;
         *"\"type\": \"SCHEMA\""*) echo "SCHEMA=>${entry}";;
         *"\"type\": \"STATE\""*) echo "STATE=>${entry}";;
+        *"\"type\": \"ACTIVATE_VERSION\""*) echo "ACTIVATE_VERSION=>${entry}";;
         # *) echo "UKNOWN=>${entry}";;
       esac
     done

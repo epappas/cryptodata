@@ -1,19 +1,9 @@
-import argparse
-import os
-import json
-import collections
 from typing import Dict
-import requests
 import singer
 import uuid
-import singer.bookmarks as bookmarks
 import singer.metrics as metrics
 
-from singer import metadata
-from datetime import datetime, timezone
-from singer import Transformer, utils
-
-from .dtos.config import ConfigDto
+from .config import ConfigDto
 from .utils import fetch
 
 def fetch_betconix_v1_pairs(config: ConfigDto, state={}) -> Dict:
@@ -33,7 +23,7 @@ def fetch_betconix_v1_pairs(config: ConfigDto, state={}) -> Dict:
         'x-tap_version': tap_version,
     }
 
-    singer.write_schema(config.stream_name, config.in_schema, config.key_properties)
+    singer.write_schema(config.stream_name, config.in_schema, config.key_properties, config.bookmark_properties)
     singer.write_version(config.stream_name, config.stream_version)
 
     with metrics.record_counter('pairs') as counter:

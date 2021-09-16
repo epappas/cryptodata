@@ -8,7 +8,7 @@ from singer import metadata
 
 from .pairs import fetch_betconix_v1_pairs
 from .utils import load_schema, LOGGER
-from .dtos.config import ConfigDto
+from .config import ConfigDto
 
 
 STATE = {}
@@ -37,20 +37,21 @@ RESOURCES = {
 def do_sync():
     LOGGER.info("Starting sync")
 
-    for streams in RESOURCES.items():
+    for name, streams in RESOURCES.items():
         for stream in streams:
-            stream.sync_function(ConfigDto(
-                stream_name = stream.config['stream_name'],
-                stream_version = stream.config['stream_version'],
-                source_name = stream.config['source_name'],
-                source_type = stream.config['source_type'],
-                in_schema = stream.config['url'],
-                url = stream.config['data'],
-                data = stream.config['params'],
-                params = stream.config['headers'],
-                headers = stream.config['in_schema'],
-                key_properties = stream.config['key_properties'],
-                bookmark_properties = stream.config['bookmark_properties'],
+            conf = stream['config']
+            stream['sync_function'](ConfigDto(
+                stream_name = conf['stream_name'],
+                stream_version = conf['stream_version'],
+                source_name = conf['source_name'],
+                source_type = conf['source_type'],
+                in_schema = conf['in_schema'],
+                url = conf['url'],
+                data = conf['data'],
+                params = conf['params'],
+                headers = conf['headers'],
+                key_properties = conf['key_properties'],
+                bookmark_properties = conf['bookmark_properties'],
             ), state={})
 
     LOGGER.info("Sync complete")

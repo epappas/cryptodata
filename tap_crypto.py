@@ -18,7 +18,7 @@ schema = {
         'base': { 'type': "string" },
         'target': { 'type': "string" },
         # --- Meta ---
-        'x-batch_id': { 'type': "string", 'format': "date-time" },
+        'x-batch_id': { 'type': "string" },
         'x-stream_name': { 'type': "string" },
         'x-stream_version': { 'type': "string" },
         'x-source_name': { 'type': "string" },

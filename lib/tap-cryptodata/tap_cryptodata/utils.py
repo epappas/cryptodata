@@ -1,14 +1,19 @@
 import os
-import sys
 import requests
 import backoff
 import singer
+
+from typing import Iterator
+from requests import Response
 from singer import utils
 
 LOGGER = singer.get_logger()
 SESSION = requests.Session()
 
-def get_abs_path(path):
+class ReqException(Exception):
+    pass
+
+def get_abs_path(path) -> str:
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), path)
 
 def load_schema(entity):
@@ -19,37 +24,20 @@ def load_schema(entity):
                       max_tries=5,
                       giveup=lambda e: e.response is not None and 400 <= e.response.status_code < 500, # pylint: disable=line-too-long
                       factor=2)
-def request(url, params=None):
-    params = params or {}
-    params['private_token'] = CONFIG['private_token']
+def request(url, method="GET", headers={}, params={}, data={}) -> Response:
+    req = requests.Request(method, url, headers, params=params, data=data).prepare()
+    LOGGER.info("{} {}".format(method, req.url))
 
-    headers = {}
-    if 'user_agent' in CONFIG:
-        headers['User-Agent'] = CONFIG['user_agent']
+    response = SESSION.send(req)
+    if response.status_code >= 400:
+        error = "Error making request to GitLab API: {} {} [{} - {}]".format(method, req.url, response.status_code, response.content)
+        LOGGER.critical(error)
+        raise ReqException(error)
 
-    req = requests.Request('GET', url, params=params, headers=headers).prepare()
-    LOGGER.info("GET {}".format(req.url))
-    resp = SESSION.send(req)
-
-    if resp.status_code >= 400:
-        LOGGER.critical(
-            "Error making request to GitLab API: GET {} [{} - {}]".format(
-                req.url, resp.status_code, resp.content))
-        sys.exit(1)
-
-    return resp
+    return response
 
 
-def gen_request(url):
-    params = {'page': 1}
-    resp = request(url, params)
-    last_page = int(resp.headers.get('X-Total-Pages', 1))
-
-    for row in resp.json():
-        yield row
-
-    for page in range(2, last_page + 1):
-        params['page'] = page
-        resp = request(url, params)
-        for row in resp.json():
+def fetch(url, headers={}, params={}, data={}) -> Iterator[Response]:
+    with request(url, headers=headers, params=params, data=data) as response:
+        for row in response.json():
             yield row

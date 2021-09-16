@@ -2,56 +2,54 @@ import argparse
 import os
 import json
 import collections
+from typing import Dict
 import requests
 import singer
+import uuid
 import singer.bookmarks as bookmarks
 import singer.metrics as metrics
 
 from singer import metadata
+from datetime import datetime, timezone
+from singer import Transformer, utils
 
-def sync_branches(project):
-    url = get_url("branches", project['id'])
-    with Transformer(pre_hook=format_timestamp) as transformer:
-        for row in gen_request(url):
-            row['project_id'] = project['id']
-            flatten_id(row, "commit")
-            transformed_row = transformer.transform(row, RESOURCES["branches"]["schema"])
-            singer.write_record("branches", transformed_row, time_extracted=utils.now())
+from .dtos.config import ConfigDto
+from .utils import fetch
 
+def fetch_betconix_v1_pairs(config: ConfigDto, state={}) -> Dict:
+    url = config.url
+    extraction_time = singer.utils.now()
+    now = extraction_time.isoformat()
+    batch_id = str(uuid.uuid4())
+    tap_version = "tap_crypto@0.1.0"
+    base = {
+        'x-batch_id': batch_id,
+        'x-stream_name': config.stream_name,
+        'x-stream_version': config.stream_version,
+        'x-source_name': config.source_name,
+        'x-source_type': config.source_type,
+        'x-source_uri': config.url,
+        'x-timestamp': now,
+        'x-tap_version': tap_version,
+    }
 
-
-def get_all_pairs(schemas, repo_path, state, mdata):
-    # https://developer.github.com/v3/repos/comments/
-    # updated_at? incremental
-    # 'https://api.github.com/repos/{}/comments?sort=created_at&direction=desc'.format(repo_path)
-    bookmark_value = get_bookmark(state, repo_path, "pairs", "since")
-    if bookmark_value:
-        bookmark_time = singer.utils.strptime_to_utc(bookmark_value)
-    else:
-        bookmark_time = 0
+    singer.write_schema(config.stream_name, config.in_schema, config.key_properties)
+    singer.write_version(config.stream_name, config.stream_version)
 
     with metrics.record_counter('pairs') as counter:
-        for response in authed_get_all_pages(
-                'pairs',
-                'https://api.github.com/repos/{}/comments?sort=created_at&direction=desc'.format(repo_path)
-        ):
-            pairs = response.json()
-            extraction_time = singer.utils.now()
-            for r in pairs:
-                r['_sdc_repository'] = repo_path
+        for row in fetch(url, headers=config.headers, params=config.params, data=config.data):
+            record = dict()
+            record.update(base)
+            record.update(row)
+            singer.write_record(config.stream_name, record, time_extracted=extraction_time)
+            counter.increment()
 
-                # skip records that haven't been updated since the last run
-                # the GitHub API doesn't currently allow a ?since param for pulls
-                # once we find the first piece of old data we can return, thanks to
-                # the sorting
-                if bookmark_time and singer.utils.strptime_to_utc(r.get('updated_at')) < bookmark_time:
-                    return state
-
-                # transform and write release record
-                with singer.Transformer() as transformer:
-                    rec = transformer.transform(r, schemas, metadata=metadata.to_map(mdata))
-                singer.write_record('pairs', rec, time_extracted=extraction_time)
-                singer.write_bookmark(state, repo_path, 'pairs', {'since': singer.utils.strftime(extraction_time)})
-                counter.increment()
+    singer.write_state({
+        'x-stream_name': config.stream_name,
+        'latest-batch_id': batch_id,
+        'latest-update': now,
+        'latest-tap_version': tap_version,
+    })
 
     return state
+

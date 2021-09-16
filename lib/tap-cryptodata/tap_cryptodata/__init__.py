@@ -1,17 +1,14 @@
 #!/usr/bin/env python3
 
-import argparse
-import os
-import json
-import collections
-import requests
+from logging import config
 import singer
 import singer.bookmarks as bookmarks
 import singer.metrics as metrics
 from singer import metadata
 
-from .pairs import get_all_pairs
+from .pairs import fetch_betconix_v1_pairs
 from .utils import load_schema, LOGGER
+from .dtos.config import ConfigDto
 
 
 STATE = {}
@@ -19,7 +16,7 @@ REQUIRED_CONFIG_KEYS = []
 
 RESOURCES = {
     'pairs': [{
-        'sync_function': get_all_pairs,
+        'sync_function': fetch_betconix_v1_pairs,
         'sub_streams': [],
         'config': {
             'stream_name': "betconix_v1_pairs",
@@ -27,7 +24,8 @@ RESOURCES = {
             'source_name': "betconix",
             'source_type': "CEX_API",
             'url': "https://betconix.com/api/v2/pairs",
-            'payload': {},
+            'data': {},
+            'params': {},
             'headers': {},
             'in_schema': load_schema("betconix_v1_pairs"),
             'key_properties': ["ticker_id", "base", "target"],
@@ -39,19 +37,21 @@ RESOURCES = {
 def do_sync():
     LOGGER.info("Starting sync")
 
-    gids = list(filter(None, CONFIG['groups'].split(' ')))
-    pids = list(filter(None, CONFIG['projects'].split(' ')))
-
-    for resource, config in RESOURCES.items():
-        singer.write_schema(resource, config['schema'], config['key_properties'])
-
-    for gid in gids:
-        sync_group(gid, pids)
-
-    if not gids:
-        # When not syncing groups
-        for pid in pids:
-            sync_project(pid)
+    for streams in RESOURCES.items():
+        for stream in streams:
+            stream.sync_function(ConfigDto(
+                stream_name = stream.config['stream_name'],
+                stream_version = stream.config['stream_version'],
+                source_name = stream.config['source_name'],
+                source_type = stream.config['source_type'],
+                in_schema = stream.config['url'],
+                url = stream.config['data'],
+                data = stream.config['params'],
+                params = stream.config['headers'],
+                headers = stream.config['in_schema'],
+                key_properties = stream.config['key_properties'],
+                bookmark_properties = stream.config['bookmark_properties'],
+            ), state={})
 
     LOGGER.info("Sync complete")
 
@@ -59,11 +59,6 @@ def do_sync():
 @singer.utils.handle_top_exception(LOGGER)
 def main():
     args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
-
-     # TODO: Address properties that are required or not
-    args = utils.parse_args(["private_token", "projects", "start_date"])
-
-    CONFIG.update(args.config)
 
     if args.state:
         STATE.update(args.state)

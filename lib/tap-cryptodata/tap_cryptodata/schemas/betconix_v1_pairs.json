@@ -1,0 +1,18 @@
+{
+  "type": ["null", "object"],
+  "additionalProperties": false,
+  "properties": {
+    "ticker_id": {"type": "string"},
+    "base": {"type": "string"},
+    "target": {"type": "string"},
+
+    "x-batch_id": {"type": "string", "format": "date-time"},
+    "x-stream_name": {"type": "string"},
+    "x-stream_version": {"type": "string"},
+    "x-source_name": {"type": "string"},
+    "x-source_type": ["CEX_API", "DEX_API", "NODE_NETWORK", "API_NETWORK"],
+    "x-source_uri": {"type": "string", "format": "uri-reference"},
+    "x-timestamp": {"type": "string", "format": "date-time"},
+    "x-tap_version": {"type": "string"}
+  }
+}

@@ -14,3 +14,4 @@ class ConfigDto:
     headers: dict = field(default_factory=dict)
     key_properties: list = field(default_factory=list)
     bookmark_properties: list = field(default_factory=list)
+    xparams: dict = field(default_factory=dict)

@@ -8,7 +8,7 @@ from singer import metadata
 
 from .pairs import fetch_betconix_v1_pairs
 from .utils import load_schema, LOGGER
-from .config import ConfigDto
+from .config_dto import ConfigDto
 
 
 STATE = {}
@@ -30,17 +30,24 @@ RESOURCES = {
             'in_schema': load_schema("betconix_v1_pairs"),
             'key_properties': ["ticker_id", "base", "target"],
             'bookmark_properties': ["x-stream_name", "x-source_name", "x-source_type"],
+            'xparams': {}
         }
     }]
 }
 
-def do_sync():
+def do_sync(config = {}, state = {}):
     LOGGER.info("Starting sync")
 
-    for name, streams in RESOURCES.items():
+    for _, streams in RESOURCES.items():
         for stream in streams:
-            conf = stream['config']
-            stream['sync_function'](ConfigDto(
+            sync_function = stream['sync_function']
+
+            conf = {}
+            conf.update(stream['config'])
+            if conf['stream_name'] in config:
+                conf.update(config[conf['stream_name']])
+
+            sync_function(ConfigDto(
                 stream_name = conf['stream_name'],
                 stream_version = conf['stream_version'],
                 source_name = conf['source_name'],
@@ -52,6 +59,7 @@ def do_sync():
                 headers = conf['headers'],
                 key_properties = conf['key_properties'],
                 bookmark_properties = conf['bookmark_properties'],
+                xparams = conf['xparams'],
             ), state={})
 
     LOGGER.info("Sync complete")
@@ -64,7 +72,7 @@ def main():
     if args.state:
         STATE.update(args.state)
 
-    do_sync()
+    do_sync(args.config, args.state)
 
 if __name__ == '__main__':
     main()

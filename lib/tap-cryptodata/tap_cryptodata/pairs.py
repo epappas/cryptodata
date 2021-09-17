@@ -3,7 +3,7 @@ import singer
 import uuid
 import singer.metrics as metrics
 
-from .config import ConfigDto
+from .config_dto import ConfigDto
 from .utils import fetch
 
 def fetch_betconix_v1_pairs(config: ConfigDto, state={}) -> Dict:

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from setuptools import setup
+from setuptools import find_packages, setup
 
 setup(
     name="tap-cryptodata",
@@ -19,7 +19,8 @@ setup(
     [console_scripts]
     tap-cryptodata=tap_cryptodata:main
     """,
-    packages=["tap_cryptodata"],
+    # packages=["tap_cryptodata"],
+    packages=find_packages(exclude=['tests*']),
     package_data = {
         "schemas": ["tap_cryptodata/schemas/*.json"]
     },

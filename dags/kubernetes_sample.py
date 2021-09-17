@@ -22,7 +22,7 @@ start = DummyOperator(task_id="run_this_first", dag=dag)
 tap_cryptodata = KubernetesPodOperator(
     namespace="airflow",
     image="epappas/tap-cryptodata:latest",
-    cmds=["python", "-c"],
+    cmds=["tap-cryptodata"],
     arguments=["-c", "./sample_config.json"],
     labels={"foo": "bar"},
     name="tap-cryptodata",

@@ -8,6 +8,8 @@ PIP := $(PYTHON) -m pip
 
 all: airflow superset
 
+retry: build push pull destroy sleep airflow sleep sleep k8s_pf
+
 airflow: k8s_config k8s_charts k8s_namespace k8s_airflow
 
 superset: k8s_config k8s_charts k8s_namespace k8s_superset
@@ -49,6 +51,10 @@ scan:
 
 pull:
 	$(CWD)/scripts/pull.sh
+
+sleep:
+	@echo "Waiting 30sec..."
+	@sleep 30
 
 virtualenv:
 	$(PYTHON) -m venv .venv

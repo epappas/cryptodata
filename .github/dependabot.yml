@@ -6,34 +6,6 @@
 version: 2
 updates:
   - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "pip"
-    directory: "lib/singer-python"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "pip"
-    directory: "lib/tap-git"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "pip"
-    directory: "lib/tap-github"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "pip"
-    directory: "lib/tap-gitlab"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "pip"
-    directory: "lib/tap-jira"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "pip"
-    directory: "lib/tap-postgres"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "pip"
-    directory: "lib/target-postgres"
+    directory: "lib/tap-cryptodata"
     schedule:
       interval: "daily"

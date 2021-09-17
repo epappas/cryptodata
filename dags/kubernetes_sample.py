@@ -19,30 +19,28 @@ dag = DAG("kubernetes_sample", default_args=default_args, schedule_interval="@on
 
 start = DummyOperator(task_id="run_this_first", dag=dag)
 
-# intentionally pointing to "airflow" kubernetes namespace to illustrate that pods can run in different environments
-# "airflow" should work for cloud composer as well
-passing_python = KubernetesPodOperator(
+tap_cryptodata = KubernetesPodOperator(
     namespace="airflow",
-    image="python:3.7-slim",
+    image="epappas/tap-cryptodata:latest",
     cmds=["python", "-c"],
-    arguments=["print('hello world')"],
+    arguments=["-c", "./sample_config.json"],
     labels={"foo": "bar"},
-    name="passing-python",
-    task_id="passing-python-task",
+    name="tap-cryptodata",
+    task_id="tap-cryptodata-task",
     get_logs=True,
     dag=dag,
 )
 
-passing_bash = KubernetesPodOperator(
-    namespace="airflow",
-    image="ubuntu:16.04",
-    cmds=["/bin/bash", "-cx"],
-    arguments=["export"],
-    labels={"foo": "bar"},
-    name="fail",
-    task_id="passing-bash-task",
-    get_logs=True,
-    dag=dag,
-)
+# passing_bash = KubernetesPodOperator(
+#     namespace="airflow",
+#     image="ubuntu:16.04",
+#     cmds=["/bin/bash", "-cx"],
+#     arguments=["export"],
+#     labels={"foo": "bar"},
+#     name="fail",
+#     task_id="passing-bash-task",
+#     get_logs=True,
+#     dag=dag,
+# )
 
-start >> [passing_python, passing_bash]
+start >> [tap_cryptodata]

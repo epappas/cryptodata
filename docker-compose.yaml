@@ -8,6 +8,11 @@ x-airflow-common:
     AIRFLOW__KUBERNETES__DAGS_IN_IMAGE: "True"
   user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-50000}"
 
+x-tap-cryptodata:
+  &tap-cryptodata
+  environment:
+    TAP_NAME: "tap-cryptodata"
+
 networks:
   airflow:
 
@@ -19,3 +24,10 @@ services:
       context: .
       dockerfile: Dockerfile
     <<: *airflow-common
+  tap-cryptodata:
+    image: epappas/tap-cryptodata:latest
+    container_name: tap-cryptodata
+    build:
+      context: ./lib/tap-cryptodata
+      dockerfile: Dockerfile
+    <<: *tap-cryptodata

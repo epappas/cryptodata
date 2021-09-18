@@ -1,6 +1,6 @@
 from typing import Dict
-import singer
 import uuid
+import singer
 import singer.metrics as metrics
 
 from .config_dto import ConfigDto
@@ -24,7 +24,7 @@ def fetch_betconix_v1_pairs(config: ConfigDto, state={}) -> Dict:
     }
 
     singer.write_schema(config.stream_name, config.in_schema, config.key_properties, config.bookmark_properties)
-    singer.write_version(config.stream_name, config.stream_version)
+    # singer.write_version(config.stream_name, config.stream_version)
 
     with metrics.record_counter('pairs') as counter:
         for row in fetch(url, headers=config.headers, params=config.params, data=config.data):

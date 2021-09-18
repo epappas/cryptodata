@@ -4,12 +4,18 @@ set -xeuo pipefail
 
 export PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)"
 
-pip install --ignore-installed \
-  --no-cache-dir --upgrade \
-  --upgrade-strategy only-if-needed \
+# pip install --ignore-installed \
+#   --no-cache-dir --upgrade \
+#   --upgrade-strategy only-if-needed \
+#   -r "${PROJECT_DIR}/requirements.txt"
+
+# pip install --ignore-installed \
+#   --no-cache-dir --upgrade \
+#   --upgrade-strategy only-if-needed \
+#   -r "${PROJECT_DIR}/lib/requirements.txt"
+
+pip install --upgrade-strategy only-if-needed \
   -r "${PROJECT_DIR}/requirements.txt"
 
-pip install --ignore-installed \
-  --no-cache-dir --upgrade \
-  --upgrade-strategy only-if-needed \
+pip install --upgrade-strategy only-if-needed \
   -r "${PROJECT_DIR}/lib/requirements.txt"

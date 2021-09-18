@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
+"""
+tap streaming data
+"""
 
-from logging import config
 import singer
-import singer.bookmarks as bookmarks
-import singer.metrics as metrics
-from singer import metadata
 
 from .pairs import fetch_betconix_v1_pairs
 from .utils import load_schema, LOGGER
@@ -36,6 +35,10 @@ RESOURCES = {
 }
 
 def do_sync(config = {}, state = {}):
+    """
+    Execute the sync logic
+    """
+
     LOGGER.info("Starting sync")
 
     for _, streams in RESOURCES.items():
@@ -60,12 +63,11 @@ def do_sync(config = {}, state = {}):
                 key_properties = conf['key_properties'],
                 bookmark_properties = conf['bookmark_properties'],
                 xparams = conf['xparams'],
-            ), state={})
+            ), state=state)
 
     LOGGER.info("Sync complete")
 
 
-@singer.utils.handle_top_exception(LOGGER)
 def main():
     args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
 

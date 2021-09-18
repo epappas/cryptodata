@@ -190,7 +190,7 @@ airflow:
   ##     - name: synchronised-dags
   ##       mountPath: /opt/airflow/dags
   ##
-  extraVolumeMounts: # this will get the volume and mount it to that path in the container
+  extraVolumeMounts:
     # - name: dags
     #   mountPath: /opt/airflow/dags/ # location in the container it will put the directory mentioned below.
     # - name: appconfig

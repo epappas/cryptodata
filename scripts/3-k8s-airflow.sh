@@ -10,10 +10,10 @@ export NAMESPACE="${NAMESPACE:-airflow}"
 helm install \
 airflow \
 airflow-stable/airflow \
---version 7.16.0 \
+--version "8.5.2" \
 --namespace "${NAMESPACE}" \
 --values "${PROJECT_DIR}/airflow-setup.yaml" \
---values "${PROJECT_DIR}/airflow-secrets.yaml" \
+--values "${PROJECT_DIR}/airflow2-secrets.yaml" \
 --post-renderer "${PROJECT_DIR}/scripts/envsubst.sh"
 
 kubectl get deployments

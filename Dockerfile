@@ -1,4 +1,4 @@
-FROM apache/airflow:1.10.15-python3.7
+FROM apache/airflow:2.1.2-python3.8
 
 RUN pip install --upgrade pip
 RUN pip install -U pip setuptools==58.0.1 wheel

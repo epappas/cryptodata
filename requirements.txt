@@ -1,1 +1,1 @@
-apache-airflow[crypto,amazon,s3,postgres,async,kubernetes,slack,jira,virtualenv]==1.10.15
+apache-airflow[crypto,amazon,s3,postgres,async,kubernetes,slack,jira,virtualenv]==2.1.2

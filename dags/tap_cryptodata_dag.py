@@ -8,30 +8,29 @@ from airflow.kubernetes.secret import Secret
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
 from airflow.operators.dummy_operator import DummyOperator
 
+YESTERDAY = datetime.datetime.now() - datetime.timedelta(days=1)
+
+configmaps = ['test-configmap-1', 'test-configmap-2']
+port = k8s.V1ContainerPort(name='http', container_port=80)
 secret_env = Secret(
-    # Expose the secret as environment variable.
     deploy_type='env',
-    # The name of the environment variable, since deploy_type is `env` rather
-    # than `volume`.
     deploy_target='SQL_CONN',
-    # Name of the Kubernetes Secret
     secret='airflow-secrets',
-    # Key of a secret stored in this Secret object
     key='sql_alchemy_conn')
 secret_volume = Secret(
     deploy_type='volume',
-    # Path where we mount the secret as volume
     deploy_target='/var/secrets/google',
-    # Name of Kubernetes Secret
     secret='service-account',
-    # Key in the form of service account file name
     key='service-account.json')
 
-YESTERDAY = datetime.datetime.now() - datetime.timedelta(days=1)
+volume = k8s.V1Volume(
+    name='test-volume',
+    persistent_volume_claim=k8s.V1PersistentVolumeClaimVolumeSource(claim_name='test-volume'),
+)
+volume_mount = k8s.V1VolumeMount(
+    name='test-volume', mount_path='/root/mount_file', sub_path=None, read_only=True
+)
 
-# If a Pod fails to launch, or has an error occur in the container, Airflow
-# will show the task as failed, as well as contain all of the task logs
-# required to debug.
 with models.DAG(
         dag_id='tap_cryptodata',
         schedule_interval=datetime.timedelta(days=1),
@@ -49,12 +48,19 @@ with models.DAG(
         arguments=["-c", "./sample_config.json"],
         labels={"foo": "bar"},
         get_logs=True,
-        affinity={},
         dag=dag)
         # arguments=['{{ ds }}'],
         # env_vars={'MY_VALUE': '{{ var.value.my_value }}'},
         # config_file="{{ conf.get('core', 'kube_config') }}")
-        # secrets=[secret_env, secret_volume],
         # resources={'limit_memory': "250M", 'limit_cpu': "100m"},
+        # ports=[port],
+        # volumes=[volume],
+        # volume_mounts=[volume_mount],
+        # init_containers=[init_container],
+        # affinity={},
+        # volumes=[volume],
+        # volume_mounts=[volume_mount],
+        # secrets=[secret_env, secret_volume],
+        # configmaps=configmaps,
 
     start >> [tap_cryptodata]

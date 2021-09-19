@@ -12,8 +12,8 @@ airflow \
 airflow-stable/airflow \
 --version "8.5.2" \
 --namespace "${NAMESPACE}" \
---values "${PROJECT_DIR}/airflow-setup.yaml" \
---values "${PROJECT_DIR}/airflow2-secrets.yaml" \
+--values "${PROJECT_DIR}/airflow2-setup.yaml" \
+--values "${PROJECT_DIR}/airflow-secrets.yaml" \
 --post-renderer "${PROJECT_DIR}/scripts/envsubst.sh"
 
 kubectl get deployments

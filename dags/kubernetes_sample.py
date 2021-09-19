@@ -1,6 +1,8 @@
 from airflow import DAG
 from datetime import datetime
-from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
+# from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
+from airflow.kubernetes.secret import Secret
+from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
 from airflow.operators.dummy_operator import DummyOperator
 
 

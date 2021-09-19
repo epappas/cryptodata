@@ -68,7 +68,7 @@ airflow:
     # Kubernetes Configuration
     # AIRFLOW__CORE__LOAD_EXAMPLES: "True"
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "True"
-    AIRFLOW__CORE__DAGS_FOLDER: "/opt/airflow/dags"
+    # AIRFLOW__CORE__DAGS_FOLDER: "/opt/airflow/dags"
     # ----
     AIRFLOW__KUBERNETES__NAMESPACE: "airflow"
     AIRFLOW__KUBERNETES__RUN_AS_USER: "50000"
@@ -270,8 +270,8 @@ airflow:
     #   mountPath: /opt/airflow/appconfig/
     - name: kube-config
       mountPath: /home/airflow/.kube/
-    - name: service-account
-      mountPath: /account.json
+    # - name: service-account
+    #   mountPath: /account.json
     # - name: tests
     #   mountPath: /opt/airflow/tests/
 
@@ -289,9 +289,9 @@ airflow:
     - name: kube-config
       hostPath:
         path: "${PROJECT_DIR}/.kube/"
-    - name: service-account
-      hostPath:
-        path: "${PROJECT_DIR}/account.json"
+    # - name: service-account
+    #   hostPath:
+    #     path: "${PROJECT_DIR}/account.json"
     # - name: tests
     #   hostPath:
     #     path: "${PROJECT_DIR}/tests/"
@@ -390,10 +390,10 @@ airflow:
       #   mountPath: /opt/airflow/dags/ # location in the container it will put the directory mentioned below.
       # - name: appconfig
       #   mountPath: /opt/airflow/appconfig/
-      - name: kube-config
-        mountPath: /home/airflow/.kube/
-      - name: service-account
-        mountPath: /account.json
+      # - name: kube-config
+      #   mountPath: /home/airflow/.kube/
+      # - name: service-account
+      #   mountPath: /account.json
       # - name: tests
       #   mountPath: /opt/airflow/tests/
 
@@ -408,12 +408,12 @@ airflow:
       # - name: appconfig
       #   hostPath:
       #     path: "${PROJECT_DIR}/appconfig/"
-      - name: kube-config
-        hostPath:
-          path: "${PROJECT_DIR}/.kube/"
-      - name: service-account
-        hostPath:
-          path: "${PROJECT_DIR}/account.json"
+      # - name: kube-config
+      #   hostPath:
+      #     path: "${PROJECT_DIR}/.kube/"
+      # - name: service-account
+      #   hostPath:
+      #     path: "${PROJECT_DIR}/account.json"
       # - name: tests
       #   hostPath:
       #     path: "${PROJECT_DIR}/tests/"
@@ -643,10 +643,10 @@ scheduler:
     #   mountPath: /opt/airflow/dags/ # location in the container it will put the directory mentioned below.
     # - name: appconfig
     #   mountPath: /opt/airflow/appconfig/
-    - name: kube-config
-      mountPath: /home/airflow/.kube/
-    - name: service-account
-      mountPath: /account.json
+    # - name: kube-config
+    #   mountPath: /home/airflow/.kube/
+    # - name: service-account
+    #   mountPath: /account.json
     # - name: tests
     #   mountPath: /opt/airflow/tests/
 
@@ -661,12 +661,12 @@ scheduler:
     # - name: appconfig
     #   hostPath:
     #     path: "${PROJECT_DIR}/appconfig/"
-    - name: kube-config
-      hostPath:
-        path: "${PROJECT_DIR}/.kube/"
-    - name: service-account
-      hostPath:
-        path: "${PROJECT_DIR}/account.json"
+    # - name: kube-config
+    #   hostPath:
+    #     path: "${PROJECT_DIR}/.kube/"
+    # - name: service-account
+    #   hostPath:
+    #     path: "${PROJECT_DIR}/account.json"
     # - name: tests
     #   hostPath:
     #     path: "${PROJECT_DIR}/tests/"
@@ -826,10 +826,10 @@ web:
     #   mountPath: /opt/airflow/dags/ # location in the container it will put the directory mentioned below.
     # - name: appconfig
     #   mountPath: /opt/airflow/appconfig/
-    - name: kube-config
-      mountPath: /home/airflow/.kube/
-    - name: service-account
-      mountPath: /account.json
+    # - name: kube-config
+    #   mountPath: /home/airflow/.kube/
+    # - name: service-account
+    #   mountPath: /account.json
     # - name: tests
     #   mountPath: /opt/airflow/tests/
 
@@ -844,12 +844,12 @@ web:
     # - name: appconfig
     #   hostPath:
     #     path: "${PROJECT_DIR}/appconfig/"
-    - name: kube-config
-      hostPath:
-        path: "${PROJECT_DIR}/.kube/"
-    - name: service-account
-      hostPath:
-        path: "${PROJECT_DIR}/account.json"
+    # - name: kube-config
+    #   hostPath:
+    #     path: "${PROJECT_DIR}/.kube/"
+    # - name: service-account
+    #   hostPath:
+    #     path: "${PROJECT_DIR}/account.json"
     # - name: tests
     #   hostPath:
     #     path: "${PROJECT_DIR}/tests/"
@@ -860,333 +860,14 @@ web:
 workers:
   ## if the airflow workers StatefulSet should be deployed
   ##
-  enabled: true
-
-  ## the number of worker Pods to run
-  ## - if you set this >1 we recommend defining a `workers.podDisruptionBudget`
-  ## - this is the minimum when `workers.autoscaling.enabled` is true
-  ##
-  replicas: 1
-
-  ## resource requests/limits for the worker Pod
-  ## - spec for ResourceRequirements:
-  ##   https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#resourcerequirements-v1-core
-  ##
-  resources: {}
-
-  ## the nodeSelector configs for the worker Pods
-  ## - docs for nodeSelector:
-  ##   https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
-  ##
-  nodeSelector: {}
-
-  ## the affinity configs for the worker Pods
-  ## - spec for Affinity:
-  ##   https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#affinity-v1-core
-  ##
-  affinity: {}
-
-  ## the toleration configs for the worker Pods
-  ## - spec for Toleration:
-  ##   https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#toleration-v1-core
-  ##
-  tolerations: []
-
-  ## the security context for the worker Pods
-  ## - spec for PodSecurityContext:
-  ##   https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#podsecuritycontext-v1-core
-  ##
-  securityContext: {}
-
-  ## labels for the worker StatefulSet
-  ##
-  labels: {}
-
-  ## Pod labels for the worker StatefulSet
-  ##
-  podLabels: {}
-
-  ## annotations for the worker StatefulSet
-  ##
-  annotations: {}
-
-  ## Pod annotations for the worker StatefulSet
-  ##
-  podAnnotations: {}
-
-  ## if we add the annotation: "cluster-autoscaler.kubernetes.io/safe-to-evict" = "true"
-  ##
-  safeToEvict: true
-
-  ## configs for the PodDisruptionBudget of the worker StatefulSet
-  ##
-  podDisruptionBudget:
-    ## if a PodDisruptionBudget resource is created for the worker StatefulSet
-    ##
-    enabled: false
-
-    ## the maximum unavailable pods/percentage for the worker StatefulSet
-    ##
-    maxUnavailable: ""
-
-    ## the minimum available pods/percentage for the worker StatefulSet
-    ##
-    minAvailable: ""
-
-  ## configs for the HorizontalPodAutoscaler of the worker Pods
-  ## - [WARNING] if using git-sync, ensure `dags.gitSync.resources` is set
-  ##
-  ## ____ EXAMPLE _______________
-  ##   autoscaling:
-  ##     enabled: true
-  ##     maxReplicas: 16
-  ##     metrics:
-  ##     - type: Resource
-  ##       resource:
-  ##         name: memory
-  ##         target:
-  ##           type: Utilization
-  ##           averageUtilization: 80
-  ##
-  autoscaling:
-    enabled: true
-    maxReplicas: 2
-    metrics: []
-
-  ## configs for the celery worker Pods
-  ##
-  celery:
-    ## if celery worker Pods are gracefully terminated
-    ## - consider defining a `workers.podDisruptionBudget` to prevent there not being
-    ##   enough available workers during graceful termination waiting periods
-    ##
-    ## graceful termination process:
-    ##  1. prevent worker accepting new tasks
-    ##  2. wait AT MOST `workers.celery.gracefullTerminationPeriod` for tasks to finish
-    ##  3. send SIGTERM to worker
-    ##  4. wait AT MOST `workers.terminationPeriod` for kill to finish
-    ##  5. send SIGKILL to worker
-    ##
-    gracefullTermination: false
-
-    ## how many seconds to wait for tasks to finish before SIGTERM of the celery worker
-    ##
-    gracefullTerminationPeriod: 600
-
-  ## how many seconds to wait after SIGTERM before SIGKILL of the celery worker
-  ## - [WARNING] tasks that are still running during SIGKILL will be orphaned, this is important
-  ##   to understand with KubernetesPodOperator(), as Pods may continue running
-  ##
-  terminationPeriod: 60
-
-  ## extra pip packages to install in the worker Pod
-  ##
-  ## ____ EXAMPLE _______________
-  ##   extraPipPackages:
-  ##     - "SomeProject==1.0.0"
-  ##
-  extraPipPackages:
-    - "kubernetes==11.0.0"
-
-  ## extra VolumeMounts for the worker Pods
-  ## - spec for VolumeMount:
-  ##   https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#volumemount-v1-core
-  ##
-  extraVolumeMounts:
-    # - name: dags
-    #   mountPath: /opt/airflow/dags/ # location in the container it will put the directory mentioned below.
-    # - name: appconfig
-    #   mountPath: /opt/airflow/appconfig/
-    - name: kube-config
-      mountPath: /home/airflow/.kube/
-    - name: service-account
-      mountPath: /account.json
-    # - name: tests
-    #   mountPath: /opt/airflow/tests/
-
-  ## extra Volumes for the worker Pods
-  ## - spec for Volume:
-  ##   https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#volume-v1-core
-  ##
-  extraVolumes:
-    # - name: dags
-    #   hostPath:
-    #     path: "${PROJECT_DIR}/dags/"
-    # - name: appconfig
-    #   hostPath:
-    #     path: "${PROJECT_DIR}/appconfig/"
-    - name: kube-config
-      hostPath:
-        path: "${PROJECT_DIR}/.kube/"
-    - name: service-account
-      hostPath:
-        path: "${PROJECT_DIR}/account.json"
-    # - name: tests
-    #   hostPath:
-    #     path: "${PROJECT_DIR}/tests/"
+  # enabled: true
+  enabled: false
 
 ###################################
 ## COMPONENT | Flower
 ###################################
 flower:
-  ## if the airflow flower UI should be deployed
-  ##
-  # enabled: true
   enabled: false
-
-  ## the number of flower Pods to run
-  ## - if you set this >1 we recommend defining a `flower.podDisruptionBudget`
-  ##
-  replicas: 1
-
-  ## resource requests/limits for the flower Pod
-  ## - spec for ResourceRequirements:
-  ##   https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#resourcerequirements-v1-core
-  ##
-  resources: {}
-
-  ## the nodeSelector configs for the flower Pods
-  ## - docs for nodeSelector:
-  ##   https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
-  ##
-  nodeSelector: {}
-
-  ## the affinity configs for the flower Pods
-  ## - spec for Affinity:
-  ##   https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#affinity-v1-core
-  ##
-  affinity: {}
-
-  ## the toleration configs for the flower Pods
-  ## - spec for Toleration:
-  ##   https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#toleration-v1-core
-  ##
-  tolerations: []
-
-  ## the security context for the flower Pods
-  ## - spec for PodSecurityContext:
-  ##   https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#podsecuritycontext-v1-core
-  ##
-  securityContext: {}
-
-  ## labels for the flower Deployment
-  ##
-  labels: {}
-
-  ## Pod labels for the flower Deployment
-  ##
-  podLabels: {}
-
-  ## annotations for the flower Deployment
-  ##
-  annotations: {}
-
-  ## Pod annotations for the flower Deployment
-  ##
-  podAnnotations: {}
-
-  ## if we add the annotation: "cluster-autoscaler.kubernetes.io/safe-to-evict" = "true"
-  ##
-  safeToEvict: true
-
-  ## configs for the PodDisruptionBudget of the flower Deployment
-  ##
-  podDisruptionBudget:
-    ## if a PodDisruptionBudget resource is created for the flower Deployment
-    ##
-    enabled: false
-
-    ## the maximum unavailable pods/percentage for the flower Deployment
-    ##
-    maxUnavailable: ""
-
-    ## the minimum available pods/percentage for the flower Deployment
-    ##
-    minAvailable: ""
-
-  ## the name of a pre-created secret containing the basic authentication value for flower
-  ## - this will override any value of `config.AIRFLOW__CELERY__FLOWER_BASIC_AUTH`
-  ##
-  basicAuthSecret: ""
-
-  ## the key within `flower.basicAuthSecret` containing the basic authentication string
-  ##
-  basicAuthSecretKey: ""
-
-  ## configs for the Service of the flower Pods
-  ##
-  service:
-    annotations: {}
-    type: ClusterIP
-    externalPort: 5555
-    loadBalancerIP: ""
-    loadBalancerSourceRanges: []
-    nodePort:
-      http:
-
-  ## configs for the flower Pods' readinessProbe probe
-  ##
-  readinessProbe:
-    enabled: true
-    initialDelaySeconds: 10
-    periodSeconds: 10
-    timeoutSeconds: 5
-    failureThreshold: 6
-
-  ## configs for the flower Pods' liveness probe
-  ##
-  livenessProbe:
-    enabled: true
-    initialDelaySeconds: 10
-    periodSeconds: 10
-    timeoutSeconds: 5
-    failureThreshold: 6
-
-  ## extra pip packages to install in the flower Pod
-  ##
-  ## ____ EXAMPLE _______________
-  ##   extraPipPackages:
-  ##     - "SomeProject==1.0.0"
-  ##
-  extraPipPackages:
-    - "kubernetes==11.0.0"
-
-  ## extra VolumeMounts for the flower Pods
-  ## - spec for VolumeMount:
-  ##   https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#volumemount-v1-core
-  ##
-  extraVolumeMounts:
-    # - name: dags
-    #   mountPath: /opt/airflow/dags/ # location in the container it will put the directory mentioned below.
-    # - name: appconfig
-    #   mountPath: /opt/airflow/appconfig/
-    - name: kube-config
-      mountPath: /home/airflow/.kube/
-    - name: service-account
-      mountPath: /account.json
-    # - name: tests
-    #   mountPath: /opt/airflow/tests/
-
-  ## extra Volumes for the flower Pods
-  ## - spec for Volume:
-  ##   https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#volume-v1-core
-  ##
-  extraVolumes:
-    # - name: dags
-    #   hostPath:
-    #     path: "${PROJECT_DIR}/dags/"
-    # - name: appconfig
-    #   hostPath:
-    #     path: "${PROJECT_DIR}/appconfig/"
-    - name: kube-config
-      hostPath:
-        path: "${PROJECT_DIR}/.kube/"
-    - name: service-account
-      hostPath:
-        path: "${PROJECT_DIR}/account.json"
-    # - name: tests
-    #   hostPath:
-    #     path: "${PROJECT_DIR}/tests/"
 
 ###################################
 ## CONFIG | Airflow Logs
@@ -1766,7 +1447,7 @@ postgresql:
 
     ## the size of PVC to request
     ##
-    size: 8Gi
+    size: 20Gi
 
   ## configs for the postgres StatefulSet
   ##

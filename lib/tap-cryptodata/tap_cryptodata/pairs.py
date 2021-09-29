@@ -6,7 +6,7 @@ import singer.metrics as metrics
 from .config_dto import ConfigDto
 from .utils import fetch
 
-def fetch_betconix_v1_pairs(config: ConfigDto, state={}) -> Dict:
+def fetch_betconix_v1_pairs(config: ConfigDto, state=None) -> Dict:
     url = config.url
     extraction_time = singer.utils.now()
     now = extraction_time.isoformat()
@@ -42,4 +42,3 @@ def fetch_betconix_v1_pairs(config: ConfigDto, state={}) -> Dict:
     })
 
     return state
-

@@ -26,7 +26,7 @@ setup(
         'eth-utils==1.10.0',
         'eth-abi==2.1.1',
         'click==8.0.1',
-        'ethereum-dasm==0.1.4',
+        'ethereum-dasm==0.1.5',
         'base58',
     ],
     extras_require={

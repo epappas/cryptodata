@@ -23,7 +23,7 @@ setup(
         "requests>=2.20.0",
         "backoff>=1.8.0",
         'web3==4.7.2',
-        'eth-utils==1.10.0',
+        'eth-utils==2.0.0',
         'eth-abi==2.1.1',
         'click==8.0.1',
         'ethereum-dasm==0.1.4',

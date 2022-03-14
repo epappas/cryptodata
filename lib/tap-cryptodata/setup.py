@@ -31,7 +31,7 @@ setup(
     ],
     extras_require={
         'dev': [
-            'pytest~=4.3.0'
+            'pytest>=4.3,<7.2'
         ]
     },
     entry_points="""

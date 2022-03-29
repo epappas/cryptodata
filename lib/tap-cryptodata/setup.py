@@ -25,7 +25,7 @@ setup(
         'web3==4.7.2',
         'eth-utils==1.10.0',
         'eth-abi==2.1.1',
-        'click==8.0.1',
+        'click==8.1.0',
         'ethereum-dasm==0.1.4',
         'base58',
     ],

@@ -22,7 +22,7 @@ setup(
         "singer-python>=5.12.1",
         "requests>=2.20.0",
         "backoff>=1.8.0",
-        'web3==4.7.2',
+        'web3==5.29.0',
         'eth-utils==1.10.0',
         'eth-abi==2.1.1',
         'click==8.0.1',
